@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="application-name" content="うさうさ勉強会ひな形ジェネレーター">
+<meta name="version" content="4.0.0">
+<meta name="build-date" content="2026-06-07">
+<meta name="author" content="うさうさ研修工房">
+<title>🐰🏅 勉強会ひな形ジェネレーターPRO v4.0.0 | うさうさ研修工房</title>
+<style>
+  :root{
+    /* 北大イチョウ並木パレット 🍂 */
+    --gingko:#F6DE8D;        /* パステルイチョウ */
+    --gingko-deep:#E0BE62;   /* やわらか黄金 */
+    --hokudai:#7FA98C;       /* パステル若葉（北大グリーンの淡色） */
+    --hokudai-deep:#5E8A6E;  /* 文字用のやさしい緑 */
+    --sky:#EFE4C8;           /* 古紙のセピア空 */
+    --carpet:#F6ECD2;        /* 古紙クリーム */
+    --ink:#5C5142;           /* やわらか樹皮 */
+    --brown:#8A795C;         /* セピアインク */
+    --paper:#FFFDF2;
+    --line:#E2D2A8;
+    --green:#69A581;         /* 成功（淡緑） */
+    --red:#C97B6E;           /* 淡紅葉の警告 */
+    /* 旧名互換（JS・既存クラスのため） */
+    --orange:#F6DE8D; --deep:#E0BE62; --gold:#E0BE62; --cream:#FDF7E3;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:"Hiragino Maru Gothic ProN","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    background:linear-gradient(180deg, var(--sky) 0%, #F4E9CC 34%, var(--carpet) 72%, #F0E2BC 100%);
+    background-attachment:fixed;
+    color:var(--ink); min-height:100vh; padding:24px 16px 60px; position:relative; overflow-x:hidden;
+  }
+  body::after{content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:radial-gradient(ellipse at center, transparent 58%, rgba(120,92,40,.10) 100%);}
+  header h1, .card h2, .doc-head .ttl, .pv-title{
+    font-family:"Yu Mincho","Hiragino Mincho ProN","MS Mincho",serif; letter-spacing:.06em;}
+  .card{box-shadow:0 4px 16px rgba(138,121,92,.16), inset 0 0 0 1px rgba(201,176,132,.30),
+    inset 0 0 0 4px rgba(255,253,242,.9), inset 0 0 0 5px rgba(201,176,132,.22);}
+  header{box-shadow:0 8px 22px rgba(94,138,110,.28), inset 0 0 0 2px rgba(246,222,141,.35),
+    inset 0 0 0 5px rgba(0,0,0,.0), inset 0 0 0 6px rgba(246,222,141,.18);}
+  .btn{border:1.5px solid rgba(138,111,46,.30);}
+  .btn-ink{border-color:rgba(63,88,71,.35);}
+  footer .stamp{font-family:"Yu Mincho","Hiragino Mincho ProN",serif; letter-spacing:.05em;
+    box-shadow:inset 0 0 0 2px rgba(255,253,242,.9), inset 0 0 0 3px rgba(201,176,132,.35);}
+  /* 書き込みエリアの分かりやすさ */
+  .pill-hint{font-size:.66rem; background:#FBF4DF; color:#8A6F2E; border:1px dashed #C9A53E;
+    border-radius:999px; padding:1px 8px; font-weight:bold;}
+  .doc-edit{border-top:1.5px dashed #D9C27A; cursor:text;}
+  .doc-edit:focus{background:#FFFBED; border-top-color:#C9A53E;}
+  .tb-sep{width:1px; height:20px; background:var(--line); margin:0 2px;}
+  /* ===== 使い方セクション ===== */
+  .howto{background:var(--paper); border:1.5px solid var(--line); border-radius:14px;
+    margin:14px 0 0; box-shadow:0 4px 16px rgba(138,121,92,.14),
+    inset 0 0 0 1px rgba(201,176,132,.28), inset 0 0 0 4px rgba(255,253,242,.9),
+    inset 0 0 0 5px rgba(201,176,132,.20); position:relative; z-index:1;}
+  .howto summary{cursor:pointer; padding:13px 18px; font-weight:bold; color:var(--hokudai-deep);
+    font-family:"Yu Mincho","Hiragino Mincho ProN",serif; letter-spacing:.06em; font-size:.95rem;
+    list-style:none; user-select:none;}
+  .howto summary::-webkit-details-marker{display:none;}
+  .howto summary::after{content:"▼ ひらく"; float:right; font-size:.7rem; color:var(--brown);
+    font-family:"Hiragino Maru Gothic ProN","Yu Gothic",Meiryo,sans-serif;}
+  .howto[open] summary::after{content:"▲ とじる";}
+  .howto summary:hover{color:#3F5847;}
+  .howto-body{padding:4px 20px 18px; border-top:1px dashed var(--line);}
+  .howto-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 18px; margin-top:12px;}
+  @media(max-width:900px){ .howto-grid{grid-template-columns:1fr;} }
+  .howto-step{display:flex; gap:10px; align-items:flex-start;}
+  .howto-step .hs-no{flex:none; width:26px; height:26px; border-radius:50%;
+    background:#FAE9A8; border:1.5px solid #C9A53E; color:#8A6F2E; font-weight:bold;
+    font-size:.78rem; display:flex; align-items:center; justify-content:center;}
+  .howto-step .hs-tx{font-size:.78rem; line-height:1.6; color:var(--ink);}
+  .howto-step .hs-tx b{color:var(--hokudai-deep);}
+  .howto-tips{margin-top:14px; padding:10px 14px; background:#FBF4DF; border:1px dashed #C9A53E;
+    border-radius:10px; font-size:.74rem; line-height:1.7; color:var(--ink);}
+  /* ===== 舞い散るイチョウ ===== */
+  .leaves{position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;}
+  .leaf{position:absolute; top:-6%; font-size:20px; opacity:.85;
+    animation:fall linear infinite, sway ease-in-out infinite alternate;}
+  @keyframes fall{ from{transform:translateY(-8vh) rotate(0deg);} to{transform:translateY(112vh) rotate(340deg);} }
+  @keyframes sway{ from{margin-left:0;} to{margin-left:34px;} }
+  @media (prefers-reduced-motion: reduce){ .leaf{animation:none; display:none;} }
+  .wrap{max-width:1180px; margin:0 auto; position:relative; z-index:1;}
+  header{
+    background:linear-gradient(135deg, #C9E0CD 0%, var(--hokudai) 100%);
+    border-radius:18px; padding:22px 28px; color:#3F5847;
+    position:relative; overflow:hidden; box-shadow:0 8px 22px rgba(94,138,110,.28);
+    border-bottom:5px solid #F3D87E;
+  }
+  header::before{content:"🍂　🌼　　🍂"; position:absolute; left:0; right:0; top:6px;
+    font-size:15px; opacity:.5; letter-spacing:30px; text-align:right; padding-right:110px;}
+  header .mascot{position:absolute; right:20px; top:50%; width:76px; height:99px;
+    transform:translateY(-50%); filter:drop-shadow(0 3px 5px rgba(94,138,110,.4));
+    animation:mascotfloat 3.2s ease-in-out infinite alternate;}
+  @keyframes mascotfloat{from{transform:translateY(-50%) rotate(-2deg);} to{transform:translateY(-46%) rotate(2deg);}}
+  @media (prefers-reduced-motion: reduce){ header .mascot{animation:none;} }
+  .kuro svg{width:100%; height:100%; display:block;}
+  header h1{font-size:1.4rem; letter-spacing:.03em; position:relative;}
+  header p{font-size:.82rem; opacity:.94; margin-top:5px; max-width:80%; position:relative;}
+  .badge{display:inline-block; background:#FBF0C8; color:#8A6F2E; border-radius:999px;
+    padding:3px 12px; font-size:.72rem; font-weight:bold; margin-left:6px;}
+  /* 並木ストリップ：金色の樹冠＋幹のシルエット */
+  .avenue{height:26px; margin:10px 6px 0; border-radius:8px; opacity:.95;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 44px, rgba(154,138,110,.45) 44px 49px, transparent 49px 96px),
+      linear-gradient(180deg, #F6DE8D 0%, #FBEBB0 55%, transparent 56%),
+      linear-gradient(180deg, transparent 0 55%, #F3E6C0 56%, var(--carpet) 100%);
+    box-shadow:inset 0 -2px 4px rgba(154,138,110,.2);}
+  main{display:grid; grid-template-columns:minmax(0,360px) minmax(0,1fr); gap:18px; margin-top:14px;}
+  @media(max-width:900px){ main{grid-template-columns:1fr;} }
+  .card{background:var(--paper); border:1.5px solid var(--line); border-radius:16px; padding:20px;
+    box-shadow:0 4px 16px rgba(154,138,110,.14);}
+  .card h2{font-size:1rem; color:var(--hokudai); margin-bottom:14px; display:flex; align-items:center; gap:8px;}
+  label{display:block; font-size:.76rem; font-weight:bold; color:var(--brown); margin:11px 0 4px;}
+  label .req{color:var(--red); font-size:.7rem;}
+  input,select,textarea{width:100%; border:1.5px solid var(--line); border-radius:10px; padding:8px 10px;
+    font-size:.88rem; font-family:inherit; background:#fff; color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:none; border-color:var(--gingko-deep);
+    box-shadow:0 0 0 3px rgba(224,190,98,.22);}
+  input.warn{border-color:var(--red); background:#FDF3F1;}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .hint{font-size:.68rem; color:var(--brown); margin-top:3px; line-height:1.4;}
+  .btn{border:none; border-radius:999px; padding:10px 18px; font-size:.86rem; font-weight:bold;
+    font-family:inherit; cursor:pointer; transition:transform .12s, box-shadow .12s;}
+  .btn:hover{transform:translateY(-1px); box-shadow:0 4px 12px rgba(154,138,110,.28);}
+  .btn:active{transform:translateY(0);}
+  .btn:disabled{opacity:.5; cursor:not-allowed; transform:none; box-shadow:none;}
+  .btn-main{background:linear-gradient(135deg, #FBE9A6 0%, var(--gingko) 100%);
+    color:#7A5F1E; border:1.5px solid #EAD27F; width:100%; margin-top:18px; font-size:.96rem; padding:12px;}
+  .btn-ghost{background:#fff; color:var(--hokudai); border:1.5px solid var(--gingko-deep);}
+  .btn-gold{background:#F0D386; color:#7A5F1E;}
+  .btn-ink{background:#A8C8AF; color:#3F5847;}
+  .btn-sm{padding:6px 13px; font-size:.74rem;}
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; align-items:center;}
+  .toolbar .grow{margin-left:auto; font-size:.74rem; color:var(--brown);}
+  .fmt{width:auto; padding:6px 10px; font-size:.78rem; font-weight:bold; color:var(--hokudai);
+    border-color:var(--gingko-deep); border-radius:999px; background:#fff;}
+  .tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;}
+  .tab{border:1.5px solid var(--line); background:#fff; color:var(--brown); border-radius:999px;
+    padding:6px 13px; font-size:.74rem; font-weight:bold; cursor:pointer; font-family:inherit;
+    transition:all .12s; position:relative;}
+  .tab:hover{border-color:var(--gingko-deep); color:var(--hokudai);}
+  .tab.active{background:#FAE9A8; color:#8A6F2E; border-color:#EAD27F;}
+  .tab .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green);
+    margin-left:5px; vertical-align:middle;}
+  .doc{background:#fff; border:1.5px solid var(--line); border-left:5px solid var(--gingko);
+    border-radius:12px; margin-bottom:12px; overflow:hidden;}
+  .doc-head{display:flex; align-items:center; gap:8px; padding:11px 14px; background:var(--carpet);
+    border-bottom:1px solid var(--line); flex-wrap:wrap;}
+  .doc-head .ttl{font-weight:bold; color:var(--hokudai); font-size:.84rem; flex:1; min-width:0;}
+  .doc-head .ext{font-family:"Consolas",monospace; font-size:.68rem; color:var(--brown); background:#fff;
+    border:1px solid var(--line); border-radius:6px; padding:1px 7px;}
+  .pill-edited{font-size:.66rem; background:#E7F2E9; color:var(--green); border:1px solid var(--green);
+    border-radius:999px; padding:1px 8px; font-weight:bold;}
+  .doc-edit{display:block; width:100%; min-height:320px; border:none; border-radius:0;
+    padding:14px 16px; font-size:.8rem; line-height:1.75; font-family:inherit; background:#fff; resize:vertical;}
+  .doc-edit:focus{outline:none; background:#FFFDF4;}
+  .doc-acts{display:flex; gap:6px; padding:9px 14px; border-top:1px solid var(--line); background:#fff; flex-wrap:wrap;}
+  #status{margin-top:12px; font-size:.8rem; padding:10px 12px; border-radius:10px; display:none;}
+  #status.ok{display:block; background:#E7F2E9; color:var(--green); border:1.5px solid var(--green);}
+  #status.ng{display:block; background:#FBEAE7; color:var(--red); border:1.5px solid var(--red);}
+  .note{font-size:.71rem; color:var(--brown); margin-top:12px; line-height:1.6;}
+  footer{text-align:center; font-size:.72rem; color:var(--brown); margin-top:30px; line-height:1.8;
+    position:relative; z-index:1;}
+  footer .stamp{display:inline-block; background:var(--paper); border:1.5px solid var(--gingko-deep);
+    border-radius:999px; padding:4px 16px; font-weight:bold; color:var(--hokudai);}
+  .empty{text-align:center; color:var(--brown); padding:40px 10px; font-size:.86rem;}
+  .empty .big{font-size:42px; display:block; margin-bottom:10px;}
+  /* ===== 印刷（PDF保存）用 ===== */
+  #print-area{display:none;}
+  @media print{
+    body{background:#fff; padding:0;}
+    .wrap,.leaves{display:none;}
+    #print-area{display:block; color:#000;}
+    .p-doc{page-break-after:always; padding:10mm 6mm;}
+    .p-doc:last-child{page-break-after:auto;}
+    .p-doc h1{font-size:14pt; color:#5E8A6E; border-bottom:2px solid #E0BE62; padding-bottom:4mm; margin-bottom:5mm;}
+    .p-doc pre{font-family:"Yu Gothic",Meiryo,sans-serif; font-size:10pt; line-height:1.8; white-space:pre-wrap; word-break:break-word;}
+    .p-foot{font-size:8pt; color:#7A6845; margin-top:6mm;}
+    /* ===== 表彰状 専用レイアウト ===== */
+    .p-cert{page-break-after:always; padding:14mm 12mm; text-align:center;
+      border:3.5pt double #C9940F; outline:1pt solid #5E8A6E; outline-offset:-7mm;
+      font-family:"Yu Mincho","Hiragino Mincho ProN","MS Mincho",serif; color:#3A3226;
+      position:relative; min-height:160mm;}
+    .p-cert:last-child{page-break-after:auto;}
+    .p-cert .c-corner{position:absolute; font-size:13pt;}
+    .p-cert .c-tl{top:9mm; left:9mm;} .p-cert .c-tr{top:9mm; right:9mm;}
+    .p-cert .c-bl{bottom:9mm; left:9mm;} .p-cert .c-br{bottom:9mm; right:9mm;}
+    .p-cert h1{font-size:26pt; letter-spacing:14pt; padding-left:14pt; color:#9A6F12;
+      margin:10mm 0 2mm; border:none;}
+    .p-cert .c-en{font-size:8pt; letter-spacing:3pt; color:#C9940F; margin-bottom:10mm;}
+    .p-cert .c-name{font-size:20pt; margin:8mm auto 2mm; display:inline-block; min-width:96mm;
+      border-bottom:1pt solid #7A6845; padding:0 6mm 1.5mm;}
+    .p-cert .c-dono{font-size:13pt; margin-bottom:9mm;}
+    .p-cert .c-body{font-size:11.5pt; line-height:2.3; margin:0 8mm 8mm;}
+    .p-cert .c-award{font-size:13pt; margin:2mm 0 10mm;}
+    .p-cert .c-award b{display:inline-block; min-width:52mm; border-bottom:1pt solid #7A6845;
+      padding:0 4mm 1mm; font-weight:normal;}
+    .p-cert .c-date{font-size:11pt; margin-bottom:3mm;}
+    .p-cert .c-issuer{font-size:12pt; font-weight:bold;}
+    .p-cert .c-motto{font-size:9pt; color:#9A6F12; margin-top:7mm; font-style:italic;}
+  }
+
+  /* ===== 選択ダウンロードバー ===== */
+  .selectbar{background:#fff; border:1.5px dashed var(--gingko-deep); border-radius:12px;
+    padding:10px 12px; margin-bottom:14px;}
+  .selectbar .sb-head{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;}
+  .selectbar .sb-title{font-size:.76rem; font-weight:bold; color:var(--hokudai-deep);}
+  .selectbar .sb-count{font-size:.72rem; color:var(--brown); margin-left:auto;}
+  .sel-chips{display:flex; gap:6px; flex-wrap:wrap;}
+  .sel-chip{display:inline-flex; align-items:center; gap:5px; border:1.5px solid var(--line);
+    background:var(--paper); border-radius:999px; padding:4px 11px; font-size:.72rem; font-weight:bold;
+    color:var(--brown); cursor:pointer; user-select:none; transition:all .12s;}
+  .sel-chip:hover{border-color:var(--gingko-deep);}
+  .sel-chip.on{background:#FAE9A8; color:#8A6F2E; border-color:#EAD27F;}
+  .sel-chip input{accent-color:#C9A53E; cursor:pointer;}
+  /* ===== パターン記憶＆プレビュー ===== */
+  .sb-patterns{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:9px;
+    padding-top:9px; border-top:1px dashed var(--line);}
+  .sb-patterns .sb-title{font-size:.72rem;}
+  .pat-chip{display:inline-flex; align-items:center; gap:5px; border:1.5px solid #EAD27F;
+    background:#FDF6DC; border-radius:999px; padding:3px 9px 3px 11px; font-size:.7rem; font-weight:bold;
+    color:#8A6F2E; cursor:pointer; user-select:none; transition:all .12s;}
+  .pat-chip:hover{background:#FAE9A8;}
+  .pat-chip .pat-del{border:none; background:transparent; color:#B08A3A; font-weight:bold;
+    cursor:pointer; font-size:.78rem; padding:0 1px; line-height:1; font-family:inherit;}
+  .pat-chip .pat-del:hover{color:var(--red);}
+  .pat-chip.builtin{background:#EEF5EF; border-color:#BCD6C2; color:var(--hokudai-deep);}
+  .pat-chip.builtin:hover{background:#DFEDE2;}
+  .sb-patterns input{width:130px; padding:4px 9px; font-size:.72rem; border-radius:999px;}
+  .preview{background:#fff; border:1.5px solid var(--line); border-left:5px solid var(--hokudai);
+    border-radius:12px; margin-bottom:14px; overflow:hidden;}
+  .preview .pv-head{display:flex; align-items:center; gap:8px; padding:9px 14px;
+    background:#EEF5EF; border-bottom:1px solid var(--line); flex-wrap:wrap;}
+  .preview .pv-title{font-size:.78rem; font-weight:bold; color:var(--hokudai-deep); flex:1; min-width:0;}
+  .preview textarea{display:block; width:100%; height:230px; border:none; padding:12px 16px;
+    font-size:.76rem; line-height:1.7; font-family:inherit; background:#FBFDFB; resize:vertical; color:var(--ink);}
+  .preview textarea:focus{outline:none;}
+  /* ===== 一時保存（スナップショット） ===== */
+  .snapbar{display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+    background:#FFF; border:1.5px solid var(--line); border-radius:12px;
+    padding:8px 12px; margin-bottom:14px;}
+  .snapbar .sb-title{font-size:.74rem; font-weight:bold; color:var(--hokudai-deep);}
+  .snap-chip{display:inline-flex; align-items:center; gap:6px; border:1.5px solid #BCD6C2;
+    background:#EEF5EF; border-radius:999px; padding:3px 9px 3px 11px; font-size:.7rem; font-weight:bold;
+    color:var(--hokudai-deep); user-select:none;}
+  .snap-chip button{border:none; background:transparent; cursor:pointer; font-family:inherit;
+    font-size:.7rem; font-weight:bold; padding:0 2px; line-height:1;}
+  .snap-chip .snap-restore{color:var(--hokudai-deep);}
+  .snap-chip .snap-restore:hover{color:#3F5847; text-decoration:underline;}
+  .snap-chip .snap-del{color:#7FA98C;}
+  .snap-chip .snap-del:hover{color:var(--red);}
+  .snapbar .sb-count{font-size:.68rem; color:var(--brown); margin-left:auto;}
+  /* ===== 横断検索・置換バー ===== */
+  .srbar{background:#fff; border:1.5px dashed #BCD6C2; border-radius:12px;
+    padding:10px 12px; margin-bottom:14px;}
+  .srbar .sr-row{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+  .srbar input[type="text"]{flex:1; min-width:140px; width:auto; padding:6px 10px; font-size:.8rem;}
+  .srbar .sr-opt{display:flex; align-items:center; gap:4px; font-size:.72rem; color:var(--brown); white-space:nowrap;}
+  .srbar .sr-opt input{width:auto; accent-color:#7FA98C;}
+  .sr-results{display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; align-items:center;}
+  .sr-total{font-size:.74rem; font-weight:bold; color:var(--hokudai-deep);}
+  .sr-hit{display:inline-flex; align-items:center; gap:4px; border:1.5px solid #BCD6C2;
+    background:#EEF5EF; border-radius:999px; padding:3px 11px; font-size:.7rem; font-weight:bold;
+    color:var(--hokudai-deep); cursor:pointer; user-select:none;}
+  .sr-hit:hover{background:#DFEDE2;}
+  .sr-hit b{color:#3F5847;}
+  .sr-none{font-size:.74rem; color:var(--brown);}
+  /* ===== 記入漏れ検査 ===== */
+  .inspbar{background:#fff; border:1.5px solid var(--line); border-left:5px solid #C97B6E;
+    border-radius:12px; margin-bottom:14px; overflow:hidden;}
+  .inspbar.allok{border-left-color:var(--green);}
+  .inspbar .in-head{display:flex; align-items:center; gap:8px; padding:9px 14px;
+    background:#FBF1EE; border-bottom:1px solid var(--line);}
+  .inspbar.allok .in-head{background:#EEF5EF;}
+  .inspbar .in-title{font-size:.78rem; font-weight:bold; color:var(--ink); flex:1;}
+  .insp-list{list-style:none; padding:8px 14px; margin:0; max-height:200px; overflow:auto;}
+  .insp-list li{font-size:.74rem; color:var(--ink); padding:4px 2px; line-height:1.5;
+    border-bottom:1px dashed var(--line);}
+  .insp-list li:last-child{border-bottom:none;}
+  .insp-list .in-doc{font-weight:bold; color:var(--hokudai-deep); cursor:pointer;}
+  .insp-list .in-doc:hover{text-decoration:underline;}
+  .insp-list .lv-warn{color:#B25A4C; font-weight:bold;}
+  .insp-list .lv-info{color:var(--brown); font-weight:bold;}
+  /* ===== うさうさ先生かきかきシーン ✏️ ===== */
+  .kaki-scene{text-align:center; padding:24px 10px 18px; color:var(--brown);}
+  .kaki-stage{position:relative; width:240px; height:158px; margin:0 auto;}
+  .kaki-bubble{position:absolute; top:0; left:148px; background:#fff; border:1.5px solid var(--line);
+    border-radius:14px; padding:5px 12px; font-size:.78rem; font-weight:bold; color:var(--hokudai-deep);
+    box-shadow:0 2px 6px rgba(154,138,110,.18);}
+  .kaki-bubble::after{content:""; position:absolute; left:14px; bottom:-7px; border:7px solid transparent;
+    border-top-color:#fff; border-bottom:none;}
+  .kaki-bubble .d{display:inline-block; animation:kakidot 1.2s infinite;}
+  .kaki-bubble .d:nth-child(2){animation-delay:.2s;}
+  .kaki-bubble .d:nth-child(3){animation-delay:.4s;}
+  @keyframes kakidot{0%,60%,100%{opacity:.25;} 30%{opacity:1;}}
+  .kaki-rabbit{position:absolute; left:28px; top:48px; width:60px; height:78px;
+    animation:kakibob .7s ease-in-out infinite alternate;}
+  @keyframes kakibob{from{transform:translateY(0) rotate(-2deg);} to{transform:translateY(3px) rotate(2deg);}}
+  .kaki-pencil{position:absolute; left:118px; top:74px; font-size:24px; transform-origin:90% 90%;
+    animation:kakikaki .16s ease-in-out infinite alternate;}
+  @keyframes kakikaki{from{transform:rotate(-14deg) translateX(0);} to{transform:rotate(6deg) translateX(5px);}}
+  .kaki-paper{position:absolute; left:96px; top:92px; width:86px; height:34px; background:#fff;
+    border:1.5px solid var(--line); border-radius:4px; transform:rotate(-3deg);
+    box-shadow:0 2px 5px rgba(154,138,110,.18); overflow:hidden;}
+  .kaki-paper i{display:block; height:3px; border-radius:2px; background:#D8C58F; margin:5px 7px 0;
+    animation:kakiline 1.6s ease-in-out infinite;}
+  .kaki-paper i:nth-child(2){animation-delay:.45s; background:#CFDDD0;}
+  .kaki-paper i:nth-child(3){animation-delay:.9s;}
+  @keyframes kakiline{0%{width:8%;} 60%{width:78%;} 100%{width:78%;}}
+  .kaki-cup{position:absolute; right:18px; top:88px; font-size:19px;}
+  .kaki-steam{position:absolute; right:26px; top:72px; font-size:11px; opacity:0;
+    animation:kakisteam 2.4s ease-in-out infinite;}
+  @keyframes kakisteam{0%{opacity:0; transform:translateY(4px);} 40%{opacity:.7;} 100%{opacity:0; transform:translateY(-8px);}}
+  .kaki-desk{position:absolute; left:14px; right:14px; bottom:22px; height:13px;
+    background:linear-gradient(180deg,#EBD3A8,#DDBE8C); border-radius:7px;
+    box-shadow:0 3px 0 #CBA873;}
+  .kaki-desk::before,.kaki-desk::after{content:""; position:absolute; bottom:-22px; width:10px; height:22px;
+    background:#CBA873; border-radius:0 0 4px 4px;}
+  .kaki-desk::before{left:16px;} .kaki-desk::after{right:16px;}
+  .kaki-caption{margin-top:14px; font-size:.84rem; line-height:1.7;}
+  .kaki-progress{display:inline-block; margin-top:8px; font-size:.72rem; color:var(--hokudai-deep);
+    background:#fff; border:1.5px dashed var(--gingko-deep); border-radius:999px; padding:3px 14px;}
+  @media (prefers-reduced-motion: reduce){
+    .kaki-rabbit,.kaki-pencil,.kaki-paper i,.kaki-steam,.kaki-bubble .d{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="leaves" aria-hidden="true">
+  <span class="leaf" style="left:4%;  animation-duration:11s,3.1s; animation-delay:0s,0s;">🍂</span>
+  <span class="leaf" style="left:16%; animation-duration:14s,2.6s; animation-delay:2s,.4s; font-size:15px;">🍂</span>
+  <span class="leaf" style="left:29%; animation-duration:12s,3.6s; animation-delay:5s,.2s;">🌼</span>
+  <span class="leaf" style="left:43%; animation-duration:16s,2.9s; animation-delay:1s,.7s; font-size:14px;">🍂</span>
+  <span class="leaf" style="left:57%; animation-duration:13s,3.3s; animation-delay:7s,.1s;">🍂</span>
+  <span class="leaf kuro" style="left:70%; animation-duration:24s,4.5s; animation-delay:3s,.5s; width:22px; height:29px; opacity:.85;"></span>
+  <span class="leaf" style="left:83%; animation-duration:12s,3.8s; animation-delay:6s,.3s;">🍂</span>
+  <span class="leaf" style="left:93%; animation-duration:17s,3.0s; animation-delay:4s,.6s; font-size:14px;">🍂</span>
+</div>
+<div class="wrap">
+  <header>
+    <span class="mascot kuro" aria-hidden="true"></span>
+    <div style="max-width:86%;">
+      <h1>勉強会ひな形ジェネレーターPRO<span class="badge">v4.0.0 🏅 商用テスト合格</span></h1>
+      <p>情報入力 → 9点セットのひな形を生成 → 画面で書き込み編集 → Markdown / テキスト / CSV / PDF で保存 ｜ 北大の金色の並木道を歩く気分で🍂</p>
+    </div>
+  </header>
+  <div class="avenue" aria-hidden="true"></div>
+
+  <details class="howto" id="howto">
+    <summary>📖 使い方 — 入力して、かきかきして、書き込んで、保存するまで</summary>
+    <div class="howto-body">
+      <div class="howto-grid">
+        <div class="howto-step"><span class="hs-no">1</span><span class="hs-tx"><b>勉強会の情報を入力</b>：左のフォームに勉強会名・日付・時間・講師・テーマなどを記入します（<b>*</b>は必須）。迷ったら「🎁 サンプル投入→出力」で3種のプリセットをワンクリックお試し。</span></div>
+        <div class="howto-step"><span class="hs-no">2</span><span class="hs-tx"><b>コマ構成でタイムテーブル自動計算</b>：1行に「名称,分数,種別」で書くと、開始時刻から「10:00–10:20」形式を自動計算して講座資料と台本に反映。終了時刻と合わない場合は⚠️で正直にお知らせします。</span></div>
+        <div class="howto-step"><span class="hs-no">3</span><span class="hs-tx"><b>✨生成</b>：黒うさ先生が机でかきかきしたら、9点セット（講座資料・台本・運営ガイド・ヒント・解答・宿題・サポート・チェックリスト・表彰状）のひな形が完成。タブで切り替えられます。</span></div>
+        <div class="howto-step"><span class="hs-no">4</span><span class="hs-tx"><b>そのまま書き込み編集</b>：本文エリアをクリックして直接編集できます。編集すると「✏️編集済み」が付き、「↩️ ひな形に戻す」でいつでも初期文面へ。</span></div>
+        <div class="howto-step"><span class="hs-no">5</span><span class="hs-tx"><b>保存（4形式）</b>：保存形式で Markdown / テキスト / CSV / PDF を選び、「💾この1枚」または「⬇️9点まとめて」。PDFはブラウザの印刷画面で「PDFに保存」を選ぶ方式で、<b>表彰状だけ金枠の賞状レイアウト</b>になります（🏆欄で受賞者名を差し込み、空欄なら手書き用の下線）。</span></div>
+        <div class="howto-step"><span class="hs-no">6</span><span class="hs-tx"><b>選択ダウンロード</b>：チェックで選んで「まとめて1ファイル」or「個別ファイル連続保存」。📌受講生配布セット／📌講師セットのパターンを使うと一発選択。「👀結合プレビュー」で保存前に中身を確認できます。</span></div>
+        <div class="howto-step"><span class="hs-no">7</span><span class="hs-tx"><b>🔍検索・置換／🩺記入漏れ検査</b>：9資料を横断して一括置換（原本は保持）。検査ボタンで（日付未定）などの記入漏れや⚠️残りを行番号つきで一覧し、クリックで該当資料へ飛べます。</span></div>
+        <div class="howto-step"><span class="hs-no">8</span><span class="hs-tx"><b>残したいときは2段構え</b>：「🗂 いまの状態を一時保存」はこのページを開いている間の退避（最大5件）。<b>長期保存は「📦 ファイルへ保存(.json)」</b>→次回「📂 ファイルから復元」か、.jsonを画面へドラッグ&ドロップで丸ごと復元できます。</span></div>
+      </div>
+      <div class="howto-tips">
+        💡 <b>大事な約束（ウソつかず）</b>：このツールは端末に何も保存しません。ページを閉じると入力・編集・一時保存は消えます——残したいものは必ず「📦 ファイルへ保存」を。生成物はあくまで<b>ひな形（たたき台）</b>なので、実際の進行に合わせて書き込み・調整してから配布してください🐰🥕
+      </div>
+    </div>
+  </details>
+
+  <main>
+    <!-- ===== 入力フォーム ===== -->
+    <section class="card">
+      <h2>📝 勉強会の情報</h2>
+      <label>勉強会名 <span class="req">*</span></label>
+      <input type="text" id="f-title" placeholder="例: 単一HTMLツールを読んで・守って・作り変える">
+      <div class="row">
+        <div>
+          <label>主催コミュニティ</label>
+          <input type="text" id="f-org" placeholder="例: SHIFT AI" value="SHIFT AI">
+        </div>
+        <div>
+          <label>開催日</label>
+          <input type="date" id="f-date">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>開始時刻</label>
+          <input type="time" id="f-start" value="10:00">
+        </div>
+        <div>
+          <label>終了時刻</label>
+          <input type="time" id="f-end" value="19:00">
+        </div>
+      </div>
+      <label>講師の呼び名 <span class="req">*</span></label>
+      <input type="text" id="f-teacher" placeholder="例: うさうさ先生" value="うさうさ先生">
+      <div class="hint">※ 関係者の実名は使わず、呼び名・役職名のみを推奨します</div>
+      <label>題材・テーマ <span class="req">*</span></label>
+      <input type="text" id="f-topic" placeholder="例: 単一HTMLツール（388行）の読解と改造">
+      <label>受講対象</label>
+      <input type="text" id="f-audience" value="プログラミングに興味がある全ての方（未経験歓迎）">
+      <div class="row">
+        <div>
+          <label>到達ゴール1</label>
+          <input type="text" id="f-goal1" value="読める">
+        </div>
+        <div>
+          <label>到達ゴール2</label>
+          <input type="text" id="f-goal2" value="守れる">
+        </div>
+      </div>
+      <label>到達ゴール3</label>
+      <input type="text" id="f-goal3" value="作り変えられる">
+      <div class="row">
+        <div>
+          <label>ブランド標語</label>
+          <input type="text" id="f-motto" value="面白きこともなき世を面白く">
+        </div>
+        <div>
+          <label>提出先（任意）</label>
+          <input type="text" id="f-submit" value="コミュニティの勉強会スレッド">
+        </div>
+      </div>
+      <label>コマ構成（タイムテーブル自動計算用）</label>
+      <textarea id="f-program" rows="6" spellcheck="false" placeholder="1行に1コマ: 名称,分数,種別（種別=講義/実践/休憩/全体）"></textarea>
+      <div class="hint">開始時刻から自動で「10:00–10:20」形式に計算し、講座資料と台本へ反映します。区切りは半角カンマ。</div>
+      <div class="row">
+        <div>
+          <label>🏆 表彰状の受賞者名（印刷差し込み・任意）</label>
+          <input type="text" id="f-awardee" placeholder="空欄なら記入用の下線を印刷">
+        </div>
+        <div>
+          <label>🏆 賞名（任意）</label>
+          <input type="text" id="f-award" placeholder="例: 完走賞">
+        </div>
+      </div>
+      <label>🎁 サンプルから試す（選んで投入→そのまま出力）</label>
+      <div class="row" style="grid-template-columns:1fr auto; align-items:center;">
+        <select id="f-sample">
+          <option value="html1day" selected>1日集中:単一HTMLツール（8時間）</option>
+          <option value="lpichalf">半日:はじめてのLinuxコマンド（4時間）</option>
+          <option value="ainight">夜活:伝わるプロンプト設計（2時間）</option>
+        </select>
+        <button type="button" class="btn btn-ghost" style="padding:8px 14px; font-size:.8rem;" id="btn-sample" onclick="applySample()">🎁 サンプル投入→出力</button>
+      </div>
+      <button class="btn btn-main" id="btn-gen" onclick="generate()">✨ 9点セットのひな形を生成する</button>
+      <p class="note">
+        ⚠️ 入力・編集内容はページを閉じると消えます（端末には保存しません）。長期保存は「📦 セッション保存」で .json に書き出し→次回「📂 読み込み」で復元できます。<br>
+        💡 PDF保存は、ブラウザの印刷機能（送信先:PDFに保存）を使う方式です。外部ライブラリを使わない設計のためです🐰
+      </p>
+    </section>
+
+    <!-- ===== 出力 ===== -->
+    <section class="card">
+      <h2>📤 生成結果（クリックでそのまま書き込み編集できます✏️）</h2>
+      <div class="toolbar">
+        <label style="margin:0; display:flex; align-items:center; gap:6px; font-size:.74rem;">保存形式
+          <select class="fmt" id="f-format" onchange="refreshPreview()">
+            <option value="md" selected>Markdown (.md)</option>
+            <option value="txt">テキスト (.txt)</option>
+            <option value="csv">CSV (.csv)</option>
+            <option value="pdf">PDF（印刷）</option>
+          </select>
+        </label>
+        <button class="btn btn-ghost btn-sm" onclick="copyAll()">📋 9点まとめてコピー</button>
+        <button class="btn btn-gold btn-sm" onclick="downloadAll()">⬇️ 9点まとめて保存</button>
+        <span class="tb-sep" aria-hidden="true"></span>
+        <button class="btn btn-ghost btn-sm" onclick="takeSnapshot()">🗂 いまの状態を一時保存</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleSearchBar()">🔍 検索・置換</button>
+        <button class="btn btn-ghost btn-sm" onclick="runInspection(true)">🩺 記入漏れ検査</button>
+        <span class="tb-sep" aria-hidden="true"></span>
+        <button class="btn btn-ghost btn-sm" onclick="exportSession()">📦 ファイルへ保存(.json)</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('f-session-file').click()">📂 ファイルから復元</button>
+        <input type="file" id="f-session-file" accept=".json,application/json" style="display:none" onchange="handleSessionFile(this.files)">
+        <span class="tb-sep" aria-hidden="true"></span>
+        <button class="btn btn-ink btn-sm" onclick="clearAll()">🗑️ クリア</button>
+        <span class="grow" id="counter">未生成</span>
+      </div>
+      <div class="inspbar" id="inspbar" style="display:none;">
+        <div class="in-head">
+          <span class="in-title" id="insp-title">🩺 記入漏れ検査</span>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="closeInspection()">✕ 閉じる</button>
+        </div>
+        <ul class="insp-list" id="insp-list"></ul>
+      </div>
+      <div class="srbar" id="srbar" style="display:none;">
+        <div class="sr-row">
+          <input type="text" id="sr-find" placeholder="検索する文字列（9資料の本文を横断検索）" oninput="runSearch()">
+          <span style="color:var(--brown); font-weight:bold;">→</span>
+          <input type="text" id="sr-replace" placeholder="置換後の文字列（空＝削除）">
+          <label class="sr-opt"><input type="checkbox" id="sr-case">Aa区別</label>
+          <button type="button" class="btn btn-gold btn-sm" onclick="replaceAllDocs()">↔️ すべて置換</button>
+        </div>
+        <div class="sr-results" id="sr-results"><span class="sr-none">検索語を入力すると、資料ごとのヒット数が表示されます（クリックでその資料へ）</span></div>
+      </div>
+      <div class="snapbar" id="snapbar" style="display:none;">
+        <span class="sb-title">🗂 一時保存:</span>
+        <span id="snap-chips" style="display:contents;"></span>
+        <span class="sb-count">※最大5件・このページを開いている間のみ（端末には保存しません）</span>
+      </div>
+      <div class="selectbar" id="selectbar" style="display:none;">
+        <div class="sb-head">
+          <span class="sb-title">☑️ 選択ダウンロード（保存したい資料にチェック）</span>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="selAll(true)">全選択</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="selAll(false)">全解除</button>
+          <button type="button" class="btn btn-gold btn-sm" onclick="downloadSelected()">💾 選択をまとめて保存</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="downloadSelectedEach()">💾 選択を個別ファイルで保存</button>
+          <button type="button" class="btn btn-ink btn-sm" onclick="openPreview()">👀 結合プレビュー</button>
+          <span class="sb-count" id="sel-count">選択 0点</span>
+        </div>
+        <div class="sel-chips" id="sel-chips"></div>
+        <div class="sb-patterns">
+          <span class="sb-title sb-title">⭐ よく使う選択:</span>
+          <span id="pat-chips" style="display:contents;"></span>
+          <input type="text" id="pat-name" placeholder="パターン名" maxlength="20">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="savePattern()">⭐ 現在の選択を記憶</button>
+          <span class="sb-count">※このページを開いている間だけ記憶します</span>
+        </div>
+      </div>
+      <div class="preview" id="preview" style="display:none;">
+        <div class="pv-head">
+          <span class="pv-title" id="pv-title">👀 結合プレビュー</span>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="copyPreview()">📋 この内容をコピー</button>
+          <button type="button" class="btn btn-gold btn-sm" onclick="downloadSelected()">💾 この内容を保存</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="closePreview()">✕ 閉じる</button>
+        </div>
+        <textarea id="pv-text" readonly></textarea>
+      </div>
+      <div class="tabs" id="tabs"></div>
+      <div id="docs">
+        <div class="empty" id="empty-initial"><span class="big">🐰</span>左のフォームに入力して「生成する」を押すと、うさうさ先生が机でかきかき準備を始めます🥕</div>
+      </div>
+      <div id="status" role="status" aria-live="polite"></div>
+      <p class="note">📂 セッション .json は画面のどこかへドラッグ&ドロップしても読み込めます。<br>✏️ ひな形は表示エリアで直接編集できます。編集中のひな形には緑の●が付きます。「↩️ ひな形に戻す」でいつでも初期文面へ。</p>
+    </section>
+  </main>
+
+  <footer>
+    <span class="stamp">🐰🏅 うさうさ勉強会ひな形ジェネレーターPRO v4.0.0 | Build 2026-06-07 | QA全フェーズ合格</span><br>
+    うさうさ研修工房 |「面白きこともなき世を面白く」｜ 札幌・北大の金色の並木に憧れて🍂
+  </footer>
+</div>
+
+<!-- 印刷（PDF保存）専用エリア -->
+<div id="print-area"></div>
+
+<script>
+"use strict";
+/* ============================================================
+ * うさうさ勉強会ひな形ジェネレーター
+ * Version : 4.0.0 PRO  (Build 2026-06-07)
+ * Author  : うさうさ研修工房 🐰
+ * Changes : v4.0.0 - PRO昇格。商用QA全フェーズ合格（単体26/結合10/総合
+ *           10/ホワイトボックス15/ブラックボックス9/モンキー400操作x2
+ *           シード=計73項目x2回+回帰54項目、FAIL 0・バグ修正0回）
+ *           v3.6.0 - 使い方セクション（details/summaryの開閉式・JS不要・
+ *           8ステップ+大事な約束 / アンティーク枠で統一）
+ *           v3.5.0 - 昔風学生服（詰襟+白パイピング+金ボタン+袖口）/
+ *           UIをすこしアンティーク化（古紙トーン+明朝見出し+二重飾り枠
+ *           +ヴィネット）/ ボタン文言の明確化とツールバー区切り /
+ *           書き込みヒントピル（未編集時に表示、編集で✏️編集済みへ）
+ *           v3.4.0 - マスコット全身化（おすわりポーズ:体・うで・あし・
+ *           しっぽ・肉球 / 輪郭はなめらかシンプルに変更し、ふわふわ感は
+ *           毛並みストローク+プラッシュグラデーションの内側テクスチャで
+ *           表現 / 学帽・配置箇所・依存ゼロは維持）
+ *           v3.3.0 - 黒うさ学帽マスコット（もこもこ黒兎×学帽:白二線+
+ *           緑差し色+金帽章をインラインSVGで描画 / ヘッダー・かきかき
+ *           シーン・舞い散る1羽を差し替え / ふわふわ浮遊アニメは
+ *           prefers-reduced-motionで停止 / 依存ゼロ維持）
+ *           v3.2.0 - 記入漏れ検査（未記入プレースホルダ/⚠️警告残り/入力
+ *           空欄を行番号つきで一覧・クリックで該当資料へ / ⚠️要確認と
+ *           ℹ️参考の2レベル / 保存成功時に要確認件数を自動で添える）
+ *           v3.1.0 - 横断検索・置換（9資料の本文をプレーン文字列で一括
+ *           検索 / 資料別ヒット数チップ→クリックでジャンプ / Aa区別 /
+ *           確認つき一括置換・空置換=削除 / 原本保持で↩️復帰可能）
+ *           v3.0.0 - セッションのファイル保存/読込（入力+編集込み生成物+
+ *           選択+マイパターン+一時保存を1つの.jsonに書き出し / ファイル
+ *           選択とドラッグ&ドロップで復元 / 読込時はapp判定+既知キーのみ
+ *           受理するサニタイズ+上書きconfirm / 端末非保存ポリシー維持）
+ *           v2.9.0 - 表彰状の専用印刷レイアウト（金二重枠+緑罫・明朝・
+ *           中央寄せ / 受賞者名・賞名の差し込み欄 / 空欄時は記入用下線 /
+ *           全差し込み値をエスケープ / 賞状以外は従来レイアウト維持）
+ *           v2.8.0 - タイムテーブル自動計算（コマ構成DSL: 名称,分数,種別\n *           / 開始時刻から累積計算し講座資料・台本へ反映 / 台本見出しを\n *           コマから動的生成 / 終了時刻の整合チェックと不正行警告）\n *           v2.7.0 - 一時保存（入力+生成結果+編集+選択を丸ごとメモリ内
+ *           スナップショット・最大5件・復元/削除confirm・クリア前の
+ *           案内文言）※端末には保存しない方針を維持
+ *           v2.6.0 - 選択内容の結合プレビュー（形式連動・チェック変更で
+ *           自動更新・コピー/保存導線） / よく使う選択パターンの記憶
+ *           （メモリ内のみ・最大10件・ビルトイン2種・上書き/削除confirm）
+ *           v2.5.0 - 選択ダウンロード（チェックで選んで まとめて1ファイル
+ *           or 個別ファイル連続保存 / 全選択・全解除 / 全4形式対応 /
+ *           PDFの個別保存は印刷仕様上まとめ表示にフォールバックし明示）
+ *           v2.4.0 - サンプルプリセット3種（1日HTML/半日Linux/夜活
+ *           プロンプト）と「サンプル投入→出力」ワンクリック機能 /
+ *           演出中はサンプルボタンも無効化
+ *           v2.3.0 - 遊び心:うさうさ先生かきかき演出（生成時1.5秒の
+ *           手書きシーン / 待機画面も机で待機 / 二重実行ガード /
+ *           prefers-reduced-motion・非対応環境は即時生成で機能不変）
+ *           v2.2.0 - パステル化（淡い若葉×パステルイチョウ×ミルク色 /
+ *           ヘッダーを淡緑+濃文字に変更し可読性確保 / 落ち葉に🌼🐰）
+ *           v2.1.0 - 北大イチョウ並木テーマ（北大グリーン×黄金× 
+ *           秋空 / 舞い散る葉のCSSアニメ / 並木ストリップ /
+ *           prefers-reduced-motion・印刷時は演出停止）機能は据え置き
+ *           v2.0.0 - ひな形の画面内編集（書き込み） / 保存形式選択
+ *           （Markdown・テキスト・CSV・PDF印刷） / 編集マーク表示 /
+ *           ひな形に戻す / CSVはBOM付きでExcel対応
+ *           v1.0.0 - 初版（9点セット生成・コピー・mdダウンロード）
+ * ============================================================ */
+console.log("%c🐰🏅 うさうさ勉強会ひな形ジェネレーターPRO v4.0.0 (Build 2026-06-07) | 商用QA: 73項目x2シード+回帰54項目 全PASS","color:#C9A03A;font-weight:bold");
+
+var docs = [];        // [{key,icon,title,body,original}]
+var genBusy = false;  // かきかき演出中の二重実行ガード
+var sel = [];         // 選択ダウンロード用チェック状態（docsと同じ並び）
+var previewOpen = false;
+var snapshots = [];   // 一時保存（メモリ内のみ）[{label,time,inputs,docs,sel}]
+var FIELD_IDS = ["f-title","f-org","f-date","f-start","f-end","f-teacher","f-topic",
+  "f-audience","f-goal1","f-goal2","f-goal3","f-motto","f-submit","f-program","f-awardee","f-award"];
+var patterns = [      // よく使う選択パターン（メモリ内のみ・端末に保存しない）
+  { name:"受講生配布セット", keys:["hints","homework","support"], builtin:true },
+  { name:"講師セット",       keys:["script","ops","answers","checklist"], builtin:true }
+];
+var activeTab = 0;
+
+// ---------- utilities ----------
+// 黒うさ学帽マスコット（インラインSVG・依存ゼロ）
+var KURO_USA = '<svg width="100%" height="100%" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="furG" cx="38%" cy="28%" r="85%"><stop offset="0%" stop-color="#4A4540"/><stop offset="55%" stop-color="#3B3835"/><stop offset="100%" stop-color="#312E2B"/></radialGradient><linearGradient id="uniG" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#2A2724"/><stop offset="100%" stop-color="#1D1B19"/></linearGradient></defs><circle cx="156" cy="206" r="15" fill="#45413D"/><g stroke="#5A534C" stroke-width="1.4" opacity="0.6" fill="none" stroke-linecap="round"><path d="M150,200 q3,3 1,7"/><path d="M158,198 q3,4 0,8"/><path d="M162,206 q2,4 -1,7"/></g><path d="M100,134 C146,134 160,176 157,208 C154,236 132,246 100,246 C68,246 46,236 43,208 C40,176 54,134 100,134 Z" fill="url(#furG)"/><ellipse cx="72" cy="240" rx="21" ry="11" fill="#34312E"/><ellipse cx="128" cy="240" rx="21" ry="11" fill="#34312E"/><ellipse cx="72" cy="241" rx="8" ry="4.5" fill="#C9909B" opacity="0.85"/><ellipse cx="128" cy="241" rx="8" ry="4.5" fill="#C9909B" opacity="0.85"/><g id="uniform"><path d="M100,141 C140,141 152,176 150,204 C148,224 128,231 100,231 C72,231 52,224 50,204 C48,176 60,141 100,141 Z" fill="url(#uniG)"/><path d="M100,150 L100,228" stroke="#141311" stroke-width="2.4"/><circle cx="100" cy="162" r="4.2" fill="#D9A441"/><circle cx="100" cy="162" r="2" fill="#F6DE8D"/><circle cx="100" cy="180" r="4.2" fill="#D9A441"/><circle cx="100" cy="180" r="2" fill="#F6DE8D"/><circle cx="100" cy="198" r="4.2" fill="#D9A441"/><circle cx="100" cy="198" r="2" fill="#F6DE8D"/><circle cx="100" cy="216" r="4.2" fill="#D9A441"/><circle cx="100" cy="216" r="2" fill="#F6DE8D"/><path d="M76,146 L98,153 L98,165 L78,157 Z" fill="#1B1A18" stroke="#F5F2E8" stroke-width="1.4"/><path d="M124,146 L102,153 L102,165 L122,157 Z" fill="#1B1A18" stroke="#F5F2E8" stroke-width="1.4"/><circle cx="86" cy="154" r="1.8" fill="#D9A441"/><circle cx="114" cy="154" r="1.8" fill="#D9A441"/><ellipse cx="59" cy="182" rx="12.5" ry="20" fill="#23211F" transform="rotate(-16 59 182)"/><ellipse cx="141" cy="182" rx="12.5" ry="20" fill="#23211F" transform="rotate(16 141 182)"/><path d="M48,194 q8,6 16,5" stroke="#141311" stroke-width="1.8" fill="none"/><path d="M152,194 q-8,6 -16,5" stroke="#141311" stroke-width="1.8" fill="none"/><circle cx="54" cy="202" r="7" fill="#3B3835"/><circle cx="146" cy="202" r="7" fill="#3B3835"/></g><ellipse cx="68" cy="40" rx="15" ry="38" fill="#3B3835" transform="rotate(-13 68 40)"/><ellipse cx="132" cy="40" rx="15" ry="38" fill="#3B3835" transform="rotate(13 132 40)"/><ellipse cx="68" cy="44" rx="7" ry="25" fill="#C9909B" opacity="0.92" transform="rotate(-13 68 44)"/><ellipse cx="132" cy="44" rx="7" ry="25" fill="#C9909B" opacity="0.92" transform="rotate(13 132 44)"/><circle cx="100" cy="102" r="50" fill="url(#furG)"/><g stroke="#5A534C" stroke-width="1.4" opacity="0.5" fill="none" stroke-linecap="round"><path d="M62,112 q3,4 1,8"/><path d="M70,126 q3,3 1,7"/><path d="M58,98 q4,3 2,7"/><path d="M138,112 q-3,4 -1,8"/><path d="M130,126 q-3,3 -1,7"/><path d="M142,98 q-4,3 -2,7"/><path d="M88,140 q2,3 0,6"/><path d="M112,140 q-2,3 0,6"/></g><ellipse cx="100" cy="48" rx="48" ry="21" fill="#23211F"/><ellipse cx="100" cy="40" rx="39" ry="16" fill="#23211F"/><ellipse cx="93" cy="34" rx="19" ry="8" fill="#33302C" opacity="0.8"/><path d="M53,52 Q100,72 147,52 L147,63 Q100,83 53,63 Z" fill="#1B1A18"/><path d="M56,55 Q100,73 144,55" stroke="#F5F2E8" stroke-width="3" fill="none"/><path d="M55,61 Q100,79 145,61" stroke="#F5F2E8" stroke-width="3" fill="none"/><path d="M55,67 Q100,85 145,67" stroke="#3E8E5F" stroke-width="2.6" fill="none"/><circle cx="100" cy="71" r="6.5" fill="#D9A441"/><circle cx="100" cy="71" r="3.4" fill="#F6DE8D"/><path d="M68,74 Q100,90 132,74 Q100,83 68,74 Z" fill="#161512"/><ellipse cx="80" cy="108" rx="9.5" ry="12" fill="#12100F" stroke="#6B655E" stroke-width="1.4"/><ellipse cx="120" cy="108" rx="9.5" ry="12" fill="#12100F" stroke="#6B655E" stroke-width="1.4"/><circle cx="83.5" cy="104" r="3.6" fill="#FFFDF6"/><circle cx="77" cy="112" r="1.7" fill="#FFFDF6" opacity="0.85"/><circle cx="123.5" cy="104" r="3.6" fill="#FFFDF6"/><circle cx="117" cy="112" r="1.7" fill="#FFFDF6" opacity="0.85"/><ellipse cx="100" cy="127" rx="18" ry="12" fill="#56504A"/><path d="M95.5,121 Q100,117.5 104.5,121 Q102.5,126 100,127 Q97.5,126 95.5,121 Z" fill="#E89AA6"/><path d="M100,128 q-4.5,7 -10.5,2.6 M100,128 q4.5,7 10.5,2.6" stroke="#E89AA6" stroke-width="2.3" fill="none" stroke-linecap="round"/><circle cx="63" cy="122" r="7" fill="#C97B8C" opacity="0.55"/><circle cx="137" cy="122" r="7" fill="#C97B8C" opacity="0.55"/><g stroke="#A89F95" stroke-width="1.4" opacity="0.55" stroke-linecap="round"><path d="M57,128 L42,125"/><path d="M58,134 L44,137"/><path d="M143,128 L158,125"/><path d="M142,134 L156,137"/></g></svg>';
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+  });
+}
+function val(id){ return document.getElementById(id).value.trim(); }
+function fmtDateJp(iso){
+  if(!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "（日付未定）";
+  var p = iso.split("-");
+  return p[0] + "年" + Number(p[1]) + "月" + Number(p[2]) + "日";
+}
+var DEFAULT_PROGRAM =
+  "オープニング・環境準備,20,全体\n" +
+  "第1部講義:読む,60,講義\n" +
+  "ワーク①:読んで小さく変える,60,実践\n" +
+  "ランチ休憩,60,休憩\n" +
+  "第2部講義 守る,60,講義\n" +
+  "ワーク②:守りを足す,70,実践\n" +
+  "休憩,15,休憩\n" +
+  "第3部講義 つなぐ・作り変える,45,講義\n" +
+  "ワーク③:自分用に作り変える,75,実践\n" +
+  "発表会＆相互フィードバック,45,全体\n" +
+  "まとめ・表彰・宿題案内,30,全体";
+function toMin(hm){
+  if(!/^\d{1,2}:\d{2}$/.test(hm)) return -1;
+  var p = hm.split(":");
+  return Number(p[0]) * 60 + Number(p[1]);
+}
+function toHM(min){
+  function pad(n){ return String(n).padStart(2,"0"); }
+  return pad(Math.floor(min / 60) % 24) + ":" + pad(min % 60);
+}
+function parseProgram(text, startHM){
+  var rows = [], warnings = [];
+  var cur = toMin(startHM);
+  if(cur < 0){ cur = toMin("10:00"); warnings.push("開始時刻の形式が不正のため 10:00 起点で計算しました"); }
+  String(text).split("\n").forEach(function(line, idx){
+    var t = line.trim();
+    if(!t) return;
+    var cols = t.split(",");
+    var name = (cols[0] || "").trim();
+    var min = Number((cols[1] || "").trim());
+    var type = (cols[2] || "").trim();
+    if(!name || !min || min <= 0 || min !== Math.floor(min)){
+      warnings.push((idx + 1) + "行目「" + t.substring(0, 20) + "」は形式不正のためスキップ（名称,分数,種別）");
+      return;
+    }
+    rows.push({ name:name, min:min, type:type, start:toHM(cur), end:toHM(cur + min) });
+    cur += min;
+  });
+  return { rows:rows, endHM:toHM(cur), total:rows.reduce(function(s,r){ return s + r.min; }, 0), warnings:warnings };
+}
+function ttLines(prog){
+  return prog.rows.map(function(r){
+    return r.start + "–" + r.end + "　" + r.name + "（" + r.min + "分" + (r.type ? "・" + r.type : "") + "）";
+  }).join("\n");
+}
+function asciiStamp(){
+  var d = new Date();
+  function pad(n){ return String(n).padStart(2,"0"); }
+  return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
+}
+function deepCopyDocs(list){
+  return list.map(function(doc){
+    return { key:doc.key, icon:doc.icon, title:doc.title, body:doc.body, original:doc.original };
+  });
+}
+// ---------- 記入漏れ検査（うそつかずチェック） ----------
+var INSP_TOKENS = [
+  { token:"（日付未定）",   lv:"warn", msg:"開催日が未入力のままです" },
+  { token:"（無題）",       lv:"warn", msg:"勉強会名が未入力の箇所があります" },
+  { token:"（主催）",       lv:"warn", msg:"主催コミュニティが未入力のままです" },
+  { token:"（勉強会名）",   lv:"warn", msg:"勉強会名が未入力のままです" },
+  { token:"⚠️",            lv:"warn", msg:"自動チェックの警告が文面に残っています（TT整合・形式不正など）" },
+  { token:"コマ構成が未入力", lv:"warn", msg:"タイムテーブルが未計算です（コマ構成を入力してください）" },
+  { token:"［ お名前 ］",   lv:"info", msg:"表彰状の受賞者名が空欄です（手書き授与なら空欄のままでOK）" },
+  { token:"（ここに自分の定型文）", lv:"info", msg:"AI依頼文テンプレの差し込み箇所が未記入です（配布時はそのままでもOK）" }
+];
+function inspectAll(){
+  var findings = [];
+  // ① 入力フォーム検査
+  if(!val("f-date")) findings.push({ lv:"warn", where:"入力フォーム", text:"開催日が未入力です", tab:-1 });
+  if(!document.getElementById("f-program").value.trim())
+    findings.push({ lv:"warn", where:"入力フォーム", text:"コマ構成が空です（タイムテーブルが計算されません）", tab:-1 });
+  // ② 生成済み本文のトークン走査（行番号つき）
+  docs.forEach(function(doc, di){
+    var lines = doc.body.split("\n");
+    INSP_TOKENS.forEach(function(tk){
+      var lineNos = [];
+      lines.forEach(function(line, li){ if(line.indexOf(tk.token) >= 0) lineNos.push(li + 1); });
+      if(lineNos.length){
+        findings.push({ lv:tk.lv, where:doc.icon + " " + doc.title.replace(/（.*$/,"").substring(0,10),
+          text:tk.msg + "（" + tk.token + "／" + lineNos.length + "箇所・" +
+            lineNos.slice(0,3).join(",") + (lineNos.length > 3 ? "…" : "") + "行目）", tab:di });
+      }
+    });
+  });
+  return findings;
+}
+function inspWarnCount(){
+  if(!docs.length) return 0;
+  return inspectAll().filter(function(x){ return x.lv === "warn"; }).length;
+}
+function inspSuffix(){
+  var n = inspWarnCount();
+  return n ? "／🩺要確認" + n + "件あり（記入漏れ検査で詳細）" : "";
+}
+function runInspection(scroll){
+  if(!docs.length){ flash("ng","先に9点セットを生成してください"); return; }
+  var findings = inspectAll();
+  var bar = document.getElementById("inspbar");
+  var list = document.getElementById("insp-list");
+  var warns = findings.filter(function(x){ return x.lv === "warn"; }).length;
+  var infos = findings.length - warns;
+  bar.style.display = "block";
+  bar.className = "inspbar" + (warns ? "" : " allok");
+  if(!findings.length){
+    document.getElementById("insp-title").textContent = "✅ 記入漏れは見つかりませんでした。配布OKです🐰";
+    list.innerHTML = "";
+  } else {
+    document.getElementById("insp-title").textContent =
+      "🩺 検査結果：⚠️要確認 " + warns + "件 ／ ℹ️参考 " + infos + "件";
+    list.innerHTML = findings.map(function(fd){
+      var lvTag = fd.lv === "warn" ? '<span class="lv-warn">⚠️</span> ' : '<span class="lv-info">ℹ️</span> ';
+      var where = (fd.tab >= 0)
+        ? '<span class="in-doc" onclick="switchTab(' + fd.tab + ')">' + escapeHtml(fd.where) + '</span>'
+        : '<span class="in-doc">' + escapeHtml(fd.where) + '</span>';
+      return "<li>" + lvTag + where + "：" + escapeHtml(fd.text) + "</li>";
+    }).join("");
+  }
+  if(scroll === true) flash(warns ? "ng" : "ok",
+    warns ? "🩺 要確認が " + warns + "件あります。一覧から該当資料へ移動して修正してください"
+          : "✅ 記入漏れなし。安心して配布できます🐰");
+}
+function closeInspection(){ document.getElementById("inspbar").style.display = "none"; }
+var srOpen = false;
+function countOcc(text, q, caseSensitive){
+  if(!q) return 0;
+  var hay = caseSensitive ? text : text.toLowerCase();
+  var needle = caseSensitive ? q : q.toLowerCase();
+  var n = 0, pos = 0;
+  while(true){
+    var i = hay.indexOf(needle, pos);
+    if(i < 0) break;
+    n++; pos = i + needle.length;
+  }
+  return n;
+}
+function replacePlain(text, q, rep, caseSensitive){
+  if(!q) return text;
+  var hay = caseSensitive ? text : text.toLowerCase();
+  var needle = caseSensitive ? q : q.toLowerCase();
+  var out = "", pos = 0;
+  while(true){
+    var i = hay.indexOf(needle, pos);
+    if(i < 0){ out += text.substring(pos); break; }
+    out += text.substring(pos, i) + rep;   // 非一致部は原文の大文字小文字を保持
+    pos = i + needle.length;
+  }
+  return out;
+}
+function toggleSearchBar(){
+  if(!docs.length){ flash("ng","先に9点セットを生成してください"); return; }
+  srOpen = !srOpen;
+  document.getElementById("srbar").style.display = srOpen ? "block" : "none";
+  if(srOpen) runSearch();
+}
+function runSearch(){
+  if(!srOpen) return;
+  var res = document.getElementById("sr-results");
+  var q = document.getElementById("sr-find").value;
+  if(!q){
+    res.innerHTML = '<span class="sr-none">検索語を入力すると、資料ごとのヒット数が表示されます（クリックでその資料へ）</span>';
+    return;
+  }
+  var cs = document.getElementById("sr-case").checked;
+  var total = 0, hitDocs = 0;
+  var chips = docs.map(function(doc, i){
+    var n = countOcc(doc.body, q, cs);
+    if(!n) return "";
+    total += n; hitDocs++;
+    return '<span class="sr-hit" onclick="switchTab(' + i + ')">' + doc.icon + " " +
+      escapeHtml(doc.title.replace(/（.*$/,"").substring(0,10)) + " <b>" + n + "件</b></span>";
+  }).join("");
+  if(!total){
+    res.innerHTML = '<span class="sr-none">「' + escapeHtml(q) + '」は9資料に見つかりませんでした</span>';
+  } else {
+    res.innerHTML = '<span class="sr-total">「' + escapeHtml(q) + '」 計' + total + '件／' + hitDocs + '資料</span>' + chips;
+  }
+}
+function replaceAllDocs(){
+  if(!docs.length){ flash("ng","先に9点セットを生成してください"); return; }
+  var q = document.getElementById("sr-find").value;
+  if(!q){ flash("ng","検索する文字列を入力してください"); return; }
+  var rep = document.getElementById("sr-replace").value;
+  var cs = document.getElementById("sr-case").checked;
+  var total = docs.reduce(function(s, doc){ return s + countOcc(doc.body, q, cs); }, 0);
+  if(!total){ flash("ng","「" + q + "」は見つかりませんでした（置換は行われません）"); return; }
+  var verb = rep ? ("「" + rep + "」に置換") : "削除";
+  if(!confirm("9資料を横断して「" + q + "」 " + total + "件を" + verb + "します。よろしいですか？\n（ひな形原本は保持され、↩️で戻せます）")) return;
+  docs.forEach(function(doc){ doc.body = replacePlain(doc.body, q, rep, cs); });
+  render();
+  runSearch();
+  flash("ok","↔️ " + total + "件を" + verb + "しました（変更された資料には✏️編集済みが付きます）");
+}
+var SESSION_APP_ID = "usausa-studygroup-kit";
+function sessionStamp(){
+  var d = new Date();
+  function pad(n){ return String(n).padStart(2,"0"); }
+  return asciiStamp() + "_" + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+}
+function exportSession(){
+  var inputs = {};
+  FIELD_IDS.forEach(function(id){ inputs[id] = document.getElementById(id).value; });
+  var payload = {
+    app: SESSION_APP_ID,
+    version: "3.0.0",
+    saved: new Date().toISOString(),
+    inputs: inputs,
+    format: curFormat(),
+    docs: deepCopyDocs(docs),
+    sel: sel.slice(),
+    patterns: patterns.filter(function(p){ return !p.builtin; })
+      .map(function(p){ return { name:p.name, keys:p.keys.slice() }; }),
+    snapshots: snapshots.map(function(s){
+      return { label:s.label, inputs:s.inputs, docs:deepCopyDocs(s.docs), sel:s.sel.slice() };
+    })
+  };
+  var fn = "studygroup_session_" + sessionStamp() + ".json";
+  if(saveBlob(fn, JSON.stringify(payload, null, 2), "application/json")){
+    flash("ok","📦 " + fn + " にセッション一式を保存しました（資料" + docs.length + "点・一時保存" + snapshots.length + "件・マイパターン" + payload.patterns.length + "件）");
+  } else {
+    flash("ng","セッションの書き出しに失敗しました");
+  }
+}
+function sanitizeDocs(arr){
+  var KEYS = { slides:1, script:1, ops:1, hints:1, answers:1, homework:1, support:1, checklist:1, certificate:1 };
+  if(!Array.isArray(arr)) return [];
+  var outArr = [];
+  arr.forEach(function(item){
+    if(!item || typeof item.key !== "string" || !KEYS[item.key]) return;   // 既知キーのみ受理
+    if(typeof item.body !== "string") return;
+    outArr.push({
+      key: item.key,
+      icon: (typeof item.icon === "string" && item.icon) ? item.icon : "📄",
+      title: (typeof item.title === "string" && item.title) ? item.title : item.key,
+      body: item.body,
+      original: (typeof item.original === "string") ? item.original : item.body
+    });
+  });
+  return outArr;
+}
+function applySessionData(obj){
+  if(!obj || obj.app !== SESSION_APP_ID || !obj.inputs || typeof obj.inputs !== "object"){
+    flash("ng","セッションファイルの形式が正しくありません（このツールで📦保存した .json をご利用ください）");
+    return false;
+  }
+  if(docs.length && !confirm("現在の内容を、読み込んだセッションで置き換えます。よろしいですか？\n（必要なら先に📦セッション保存をしてください）")) return false;
+  FIELD_IDS.forEach(function(id){
+    var el = document.getElementById(id);
+    if(typeof obj.inputs[id] === "string") el.value = obj.inputs[id];
+    el.classList.remove("warn");
+  });
+  if(typeof obj.format === "string" && ["md","txt","csv","pdf"].indexOf(obj.format) >= 0){
+    document.getElementById("f-format").value = obj.format;
+  }
+  docs = sanitizeDocs(obj.docs);
+  sel = docs.map(function(_, i){ return Array.isArray(obj.sel) ? !!obj.sel[i] : false; });
+  activeTab = 0;
+  var builtins = patterns.filter(function(p){ return p.builtin; });
+  var userPats = [];
+  if(Array.isArray(obj.patterns)){
+    obj.patterns.forEach(function(p){
+      if(p && typeof p.name === "string" && Array.isArray(p.keys) && builtins.length + userPats.length < 10){
+        userPats.push({ name:p.name, keys:p.keys.filter(function(k){ return typeof k === "string"; }), builtin:false });
+      }
+    });
+  }
+  patterns = builtins.concat(userPats);
+  snapshots = [];
+  if(Array.isArray(obj.snapshots)){
+    obj.snapshots.forEach(function(s){
+      if(s && typeof s.label === "string" && s.inputs && typeof s.inputs === "object" && snapshots.length < 5){
+        snapshots.push({ label:s.label, inputs:s.inputs, docs:sanitizeDocs(s.docs),
+          sel:Array.isArray(s.sel) ? s.sel.map(Boolean) : [] });
+      }
+    });
+  }
+  closePreview();
+  renderSnapBar();
+  render();
+  var savedAt = obj.saved ? "／保存 " + String(obj.saved).substring(0,19).replace("T"," ") : "";
+  flash("ok","📂 セッションを読み込みました（資料" + docs.length + "点・一時保存" + snapshots.length + "件・マイパターン" + userPats.length + "件" + savedAt + "）");
+  return true;
+}
+function handleSessionFile(files){
+  if(!files || !files.length) return;
+  var file = files[0];
+  var reader = new FileReader();
+  reader.onload = function(){
+    var parsed = null;
+    try{ parsed = JSON.parse(String(reader.result)); }
+    catch(_){ flash("ng","JSONとして読み取れませんでした。ファイルが壊れていないかご確認ください"); return; }
+    applySessionData(parsed);
+  };
+  reader.onerror = function(){ flash("ng","ファイルの読み込みに失敗しました"); };
+  reader.readAsText(file);
+  var el = document.getElementById("f-session-file");
+  if(el) el.value = "";   // 同じファイルの再選択を許可
+}
+// ドラッグ&ドロップ読込（Filesドラッグのときだけ既定動作を抑止＝textareaへの文字ドラッグは妨げない）
+function dragHasFiles(e){
+  var ts = e.dataTransfer && e.dataTransfer.types;
+  if(!ts) return false;
+  for(var i = 0; i < ts.length; i++){ if(ts[i] === "Files") return true; }
+  return false;
+}
+document.addEventListener("dragover", function(e){ if(dragHasFiles(e)) e.preventDefault(); });
+document.addEventListener("drop", function(e){
+  if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length){
+    e.preventDefault();
+    handleSessionFile(e.dataTransfer.files);
+  }
+});
+function takeSnapshot(){
+  if(snapshots.length >= 5){
+    flash("ng","一時保存は5件までです。不要なものを✕で削除してください");
+    return;
+  }
+  var inputs = {};
+  FIELD_IDS.forEach(function(id){ inputs[id] = document.getElementById(id).value; });
+  var now = new Date();
+  function pad(n){ return String(n).padStart(2,"0"); }
+  var t = pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+  var name = (inputs["f-title"] || "（無題）").substring(0, 8);
+  var stateNote = docs.length ? (docs.length + "点" + (docs.filter(isEdited).length ? "・編集中" : "")) : "入力のみ";
+  snapshots.push({
+    label: t + " " + name + "（" + stateNote + "）",
+    inputs: inputs,
+    docs: deepCopyDocs(docs),
+    sel: sel.slice()
+  });
+  renderSnapBar();
+  flash("ok","🗂 一時保存しました（" + snapshots.length + "/5件）。クリアや再生成をしても、ここから復元できます");
+}
+function renderSnapBar(){
+  var bar = document.getElementById("snapbar");
+  if(!snapshots.length){ bar.style.display = "none"; return; }
+  bar.style.display = "flex";
+  document.getElementById("snap-chips").innerHTML = snapshots.map(function(s,i){
+    return '<span class="snap-chip">' + escapeHtml(s.label) +
+      '<button type="button" class="snap-restore" onclick="restoreSnapshot(' + i + ')">↩️復元</button>' +
+      '<button type="button" class="snap-del" title="削除" onclick="deleteSnapshot(' + i + ')">✕</button></span>';
+  }).join("");
+}
+function restoreSnapshot(i){
+  var s = snapshots[i];
+  var dirty = docs.some(isEdited) || docs.length;
+  if(dirty && !confirm("現在の内容を「" + s.label + "」の状態で置き換えます。よろしいですか？\n（必要なら先に現在の状態を一時保存してください）")) return;
+  FIELD_IDS.forEach(function(id){
+    var el = document.getElementById(id);
+    el.value = s.inputs[id];
+    el.classList.remove("warn");
+  });
+  docs = deepCopyDocs(s.docs);
+  sel = s.sel.slice();
+  activeTab = 0;
+  closePreview();
+  render();
+  flash("ok","↩️ 一時保存「" + s.label + "」を復元しました");
+}
+function deleteSnapshot(i){
+  if(!confirm("一時保存「" + snapshots[i].label + "」を削除します。よろしいですか？")) return;
+  snapshots.splice(i,1);
+  renderSnapBar();
+  flash("ok","削除しました");
+}
+function kakiScene(bubble, caption, progress){
+  // 固定文字列のみで構築（ユーザー入力を含めない＝XSS経路なし）
+  return '<div class="kaki-scene">' +
+    '<div class="kaki-stage">' +
+      '<div class="kaki-bubble">' + bubble + '<span class="d">…</span><span class="d">…</span><span class="d">…</span></div>' +
+      '<span class="kaki-rabbit">' + KURO_USA + '</span>' +
+      '<span class="kaki-steam">〰</span><span class="kaki-cup">☕</span>' +
+      '<div class="kaki-paper"><i></i><i></i><i></i></div>' +
+      '<span class="kaki-pencil">✏️</span>' +
+      '<div class="kaki-desk"></div>' +
+    '</div>' +
+    '<div class="kaki-caption">' + caption + '</div>' +
+    (progress ? '<div class="kaki-progress">' + progress + '</div>' : '') +
+  '</div>';
+}
+function csvCell(s){ return '"' + String(s).replace(/"/g,'""') + '"'; }
+function toCsvOne(doc){
+  var rows = ["行番号,内容"];
+  doc.body.split("\n").forEach(function(line,i){
+    rows.push((i+1) + "," + csvCell(line));
+  });
+  return "\uFEFF" + rows.join("\r\n");   // BOM付き=Excelで文字化けしない
+}
+function toCsvMulti(list){
+  var rows = ["資料キー,資料名,行番号,内容"];
+  list.forEach(function(doc){
+    doc.body.split("\n").forEach(function(line,i){
+      rows.push(csvCell(doc.key) + "," + csvCell(doc.title) + "," + (i+1) + "," + csvCell(line));
+    });
+  });
+  return "\uFEFF" + rows.join("\r\n");
+}
+function toCsvAll(){ return toCsvMulti(docs); }
+
+// ---------- init ----------
+(function init(){
+  var now = new Date();
+  function pad(n){ return String(n).padStart(2,"0"); }
+  document.getElementById("f-date").value =
+    now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate());
+  document.getElementById("f-program").value = DEFAULT_PROGRAM;
+  Array.prototype.forEach.call(document.querySelectorAll(".kuro"), function(el){ el.innerHTML = KURO_USA; });
+  document.addEventListener("keydown", function(ev){
+    if((ev.ctrlKey||ev.metaKey) && ev.key==="Enter") generate();
+  });
+})();
+
+// ---------- validation ----------
+function validate(){
+  var required = ["f-title","f-teacher","f-topic"];
+  var ok = true;
+  required.forEach(function(id){
+    var el = document.getElementById(id);
+    var bad = !el.value.trim();
+    el.classList.toggle("warn", bad);
+    if(bad) ok = false;
+  });
+  return ok;
+}
+
+// ---------- サンプルプリセット ----------
+var SAMPLES = {
+  html1day: {
+    title:"単一HTMLツールを読んで・守って・作り変える", org:"SHIFT AI",
+    start:"10:00", end:"19:00", teacher:"うさうさ先生",
+    topic:"単一HTMLツール（388行）の読解と改造",
+    audience:"プログラミングに興味がある全ての方（未経験歓迎）",
+    g1:"読める", g2:"守れる", g3:"作り変えられる",
+    motto:"面白きこともなき世を面白く", submit:"コミュニティの勉強会スレッド",
+    program:DEFAULT_PROGRAM
+  },
+  lpichalf: {
+    title:"はじめてのLinuxコマンド 半日ハンズオン", org:"社内有志勉強会",
+    start:"13:00", end:"17:00", teacher:"うさうさ先生",
+    topic:"Linux基本コマンドとパーミッションの読み方",
+    audience:"IT未経験の新社会人・コマンドが怖い全ての方",
+    g1:"打てる", g2:"読める", g3:"調べられる",
+    motto:"面白きこともなき世を面白く", submit:"社内チャットの勉強会チャンネル",
+    program:"オープニング・環境準備,15,全体\n講義:コマンドの地図,50,講義\nワーク①:基本コマンド演習,50,実践\n休憩,10,休憩\n講義:パーミッションの読み方,40,講義\nワーク②:権限パズル,45,実践\nまとめ・表彰・宿題案内,30,全体"
+  },
+  ainight: {
+    title:"夜活:伝わるプロンプト設計ナイト", org:"SHIFT AI",
+    start:"19:00", end:"21:00", teacher:"うさうさ先生",
+    topic:"生成AIへの依頼文（プロンプト）の型と添削",
+    audience:"AIをもっと使いこなしたい社会人（職種不問）",
+    g1:"頼める", g2:"直せる", g3:"見抜ける",
+    motto:"面白きこともなき世を面白く", submit:"コミュニティの勉強会スレッド",
+    program:"オープニング,10,全体\n講義:プロンプトの型,30,講義\nワーク①:型で書き直す,35,実践\n休憩,5,休憩\nワーク②:相互添削,25,実践\nまとめ・表彰,15,全体"
+  }
+};
+function applySample(){
+  var key = document.getElementById("f-sample").value;
+  var sp = SAMPLES[key];
+  if(!sp){ flash("ng","サンプルが見つかりませんでした"); return; }
+  var map = { "f-title":sp.title, "f-org":sp.org, "f-start":sp.start, "f-end":sp.end,
+    "f-teacher":sp.teacher, "f-topic":sp.topic, "f-audience":sp.audience,
+    "f-goal1":sp.g1, "f-goal2":sp.g2, "f-goal3":sp.g3, "f-motto":sp.motto, "f-submit":sp.submit, "f-program":sp.program };
+  Object.keys(map).forEach(function(id){
+    var el = document.getElementById(id);
+    el.value = map[id];
+    el.classList.remove("warn");
+  });
+  flash("ok","🎁 サンプル「" + sp.title + "」を投入しました。続けて出力します…");
+  generate();   // 投入後そのまま出力（編集中なら既存のconfirmガードが効く）
+}
+
+// ---------- データ収集 ----------
+function collect(){
+  var startT = val("f-start") || "10:00";
+  var endT   = val("f-end")   || "19:00";
+  var d = {
+    title: val("f-title"), org: val("f-org") || "（主催）",
+    dateJp: fmtDateJp(val("f-date")), start: startT, end: endT,
+    span: startT + "〜" + endT,
+    teacher: val("f-teacher") || "講師", topic: val("f-topic"),
+    audience: val("f-audience") || "プログラミングに興味がある全ての方",
+    g1: val("f-goal1") || "読める", g2: val("f-goal2") || "守れる", g3: val("f-goal3") || "作り変えられる",
+    motto: val("f-motto") || "面白きこともなき世を面白く",
+    submit: val("f-submit") || "コミュニティの勉強会スレッド"
+  };
+  d.prog = parseProgram(document.getElementById("f-program").value, d.start);
+  // うそつかずチェック: コマ合計の終了と入力の終了時刻の整合
+  d.ttWarn = "";
+  if(d.prog.rows.length){
+    var inEnd = toMin(d.end);
+    var calcEnd = toMin(d.prog.endHM);
+    if(inEnd >= 0 && inEnd !== calcEnd){
+      d.ttWarn = "⚠️ コマ合計では終了 " + d.prog.endHM + "（入力の終了時刻 " + d.end + " と差異あり。コマ構成か終了時刻を見直してください）";
+    }
+  }
+  d.prog.warnings.forEach(function(wmsg){ d.ttWarn += (d.ttWarn ? "\n" : "") + "⚠️ " + wmsg; });
+  return d;
+}
+
+// ---------- 9点セット ひな形ビルダー ----------
+function buildDocs(d){
+  var L = "\n";
+  var out = [];
+
+  out.push({ key:"slides", icon:"📊", title:"受講生向け講座資料アウトライン", body:
+"# " + d.title + "（受講生向け講座スライド構成）" + L +
+"主催：" + d.org + "／開催：" + d.dateJp + " " + d.span + "／講師：" + d.teacher + L + L +
+"## 今日のゴール（3つの「できる」）" + L +
+"1. " + d.g1 + L + "2. " + d.g2 + L + "3. " + d.g3 + L + L +
+"## タイムテーブル（コマ構成から自動計算）" + L +
+(d.prog.rows.length ? ttLines(d.prog) : d.span + "　全体（コマ構成が未入力のため概要のみ）") + L +
+(d.ttWarn ? d.ttWarn + L : "") + L +
+"## スライド構成（目安25枚）" + L +
+"1. 表紙：" + d.title + L +
+"2. ゴール：3つの「できる」を持ち帰る" + L +
+"3. タイムテーブル（上記の自動計算表を転記）" + L +
+"4. サポート体制：3段階ヒント・ヘルプサイン・コピペルート・グランドルール" + L +
+"5. 環境準備チェック（題材：" + d.topic + "）" + L +
+"6. 第1部 扉：読む" + L +
+"7-10. 第1部 講義（題材の全体像・構造・データの流れ・要点）" + L +
+"11. ワーク①：読んで小さく変える（3ミッション）" + L +
+"12. ランチ休憩" + L +
+"13. 第2部 扉：守る" + L +
+"14-16. 第2部 講義（入力の扱い・守りのUX・失敗時の設計）" + L +
+"17. ワーク②：守りを1つ自分の手で足す" + L +
+"18. 休憩" + L +
+"19. 第3部 扉：つなぐ・作り変える" + L +
+"20. 第3部 講義（外部連携・AI活用の型）" + L +
+"21. ワーク③：自分の困りごとをツールに作り変える（AI活用OK）" + L +
+"22. 発表会：1人2分のミニデモ（Good/More方式）" + L +
+"23. まとめ：持ち帰る型" + L +
+"24. 宿題案内（初級・中級・上級）" + L +
+"25. クロージング：表彰式🏆" + L + L +
+"対象：" + d.audience + L +
+"標語：" + d.motto + " ― " + d.teacher + "🐰"
+  });
+
+  out.push({ key:"script", icon:"🎬", title:"講師向け台本（タイムスタンプ＋セリフ）", body:
+(function(){
+  var head =
+"# 講師台本｜" + d.title + L +
+"開催：" + d.dateJp + " " + d.span + "／講師：" + d.teacher + L +
+"凡例：🗣セリフ ／ 🎬操作・デモ ／ ⏱時間 ／ 💡判断" + L +
+(d.ttWarn ? d.ttWarn + L : "") + L +
+"## ⏱ タイムテーブル（自動計算）" + L +
+(d.prog.rows.length ? ttLines(d.prog) : "（コマ構成が未入力のため時刻は手動で補ってください）") + L + L;
+  if(!d.prog.rows.length){
+    return head +
+"## 進行メモ" + L +
+"🗣「講師の" + d.teacher + "です🐰 ゴールは " + d.g1 + "・" + d.g2 + "・" + d.g3 + " の3つ」" + L +
+"題材：" + d.topic + "／締め:「" + d.motto + "!おつかれさまでした🐰🥕」";
+  }
+  var lectureN = 0, workN = 0;
+  var body = d.prog.rows.map(function(r, idx){
+    var sec = "## " + r.name + "（" + r.start + "–" + r.end + "）⏱" + r.min + "分" + L;
+    var nm = r.name;
+    if(idx === 0){
+      sec += "🗣「こんにちは!講師の" + d.teacher + "です🐰 今日のゴールは『" + d.g1 + "・" + d.g2 + "・" + d.g3 + "』の3つです」" + L +
+             "💡 不安そうな方には『専用サポートルートがあります』を必ず伝える／🎬 環境準備は完璧を待たず先へ" + L;
+    } else if(nm.indexOf("発表") >= 0){
+      sec += "🗣「Good 1つ・More 1つ。ダメ出し禁止。途中まで、も立派な発表」" + L +
+             "⏱ 1人2分（合図→2分半で明るく拍手）／💡 トップバッターは巡視中に内諾" + L;
+    } else if(nm.indexOf("まとめ") >= 0 || nm.indexOf("表彰") >= 0 || nm.indexOf("クロージング") >= 0){
+      sec += "🗣 まとめ→宿題→表彰式🏆（完走賞は全員）" + L +
+             "🗣 締め：「今日のエラーの数だけ強くなりました。" + d.motto + "!おつかれさまでした🐰🥕」" + L;
+    } else if(r.type === "休憩" || nm.indexOf("休憩") >= 0 || nm.indexOf("ランチ") >= 0){
+      sec += "🎬 休憩スライド投影／🗣「再開は " + r.end + " です。質問付箋はボードへどうぞ」" + L;
+    } else if(r.type === "講義" || nm.indexOf("講義") >= 0){
+      lectureN++;
+      sec += "🗣「題材は『" + d.topic + "』。地図があれば迷子になりません」" + L +
+             "🎬 実物デモ→構造→要点の順／💡 終盤に質問を1つ拾い、次のワークへ橋渡し" + L;
+    } else if(r.type === "実践" || nm.indexOf("ワーク") >= 0){
+      workN++;
+      sec += "🗣「最初の10分は無言で詰まってOK。10分でヒント1、が今日のリズム」" + L +
+             "💡 進行詳細は運営ガイド参照／⏱ 残り時間は10分刻みで声かけ" + L;
+    } else {
+      sec += "🗣（全体進行：" + nm + "）／💡 次のコマの予告を一言添える" + L;
+    }
+    return sec;
+  }).join(L);
+  return head + body + L +
+"### 押した時の削り順：講義のバッファ→デモ省略→予備時間／削らない：サポート説明・ワーク開始ブリーフ・発表";
+})()
+  });
+
+  out.push({ key:"ops", icon:"🧭", title:"講師向けワークショップ運営ガイド", body:
+"# 運営ガイド｜" + d.title + L + L +
+"## 共通オペレーション" + L +
+"・各ワークは「黙々→ヒント解禁→ラストスパート」の3幕。残り時間は10分刻みで声かけ" + L +
+"・巡視の型：画面を見る→現在地を聞く→答えでなく1段下のヒントを口頭→5分後に再訪予告" + L +
+"・直さない原則：講師がキーボードを触るのは最終手段（触るなら「1行だけ・理由を言いながら」）" + L +
+"・付箋ルール：🟨質問あり／🟥完全停止。赤を最優先" + L +
+"・進捗の見える化：ホワイトボードにM1/M2/M3列＋完了マグネット" + L + L +
+"## ワーク①（読んで小さく変える・60分）" + L +
+"0-5分 ブリーフ／5-25分 M1（最初の成功体験）／25-40分 M2／40-55分 M3／55-60分 共有" + L +
+"処方例：『変わらない』→保存忘れ・別ファイル／『真っ白』→Ctrl+Zで復旧" + L + L +
+"## ワーク②（守りを足す・70分）" + L +
+"0-7分 ブリーフ＋擬似コード板書／7-40分 M1（山場・30分粘る）／40-55分 M2／55-65分 M3／65-70分 共有" + L +
+"安全網：30分でM1未着手→コピペルートへ正式誘導（『写経も実装のうち』）" + L + L +
+"## ワーク③（自分用に作り変える・75分）" + L +
+"0-5分 ブリーフ（合言葉=動く最小版）／5-20分 企画（全員のWHYを1周）／20-70分 制作／70-75分 発表準備" + L +
+"巡視重点：企画肥大→1画面1ボタン1出力へ／AI丸投げ→安全策の有無を質問" + L + L +
+"## 発表会（45分）" + L +
+"2分で合図・2分半で明るく拍手／固有名詞で1つ褒める／表彰材料をメモ" + L + L +
+"## 表彰の決め方（休憩中に確定）" + L +
+"ベストツール賞／ベストチャレンジ賞／ベスト質問賞／完走賞（全員）"
+  });
+
+  out.push({ key:"hints", icon:"🥕", title:"ヒント集（3段階ヒント・受講生配布）", body:
+"# ヒント集｜" + d.title + L +
+"使い方：ヒント1（方向）→2（場所）→3（ほぼ答え）の順に開く。3まで使ってOK🐰" + L + L +
+"## ワーク① 読んで小さく変える" + L +
+"### M1（最初の小さな変更）" + L +
+"・ヒント1：講義で説明した「設定が集まっている場所」を思い出そう" + L +
+"・ヒント2：エディタの検索（Ctrl+F）で該当キーワードを探す" + L +
+"・ヒント3：既存の1行をコピーして中身だけ書き換え→保存→再読込で確認" + L + L +
+"### M2（見た目を変える）" + L +
+"・ヒント1：見た目の指定が1か所にまとまっている" + L +
+"・ヒント2：ファイル上部のスタイル定義（変数）を探す" + L +
+"・ヒント3：値を1つ書き換えて保存→再読込。全体に反映されれば成功" + L + L +
+"### M3（文面・出力を変える）" + L +
+"・ヒント1：出力を組み立てている関数は1つだけ" + L +
+"・ヒント2：その関数名で検索。囲み記号の中が出力そのもの" + L +
+"・ヒント3：該当行を自分の言葉に。囲み記号と行末の記号は消さない" + L + L +
+"## ワーク② 守りを足す" + L +
+"・ヒント1：必要なのは「保存」「読み込み」と、それを呼ぶ2か所" + L +
+"・ヒント2：関数はユーティリティ群に、保存は更新処理の最後、読込は初期化の最初" + L +
+"・ヒント3：穴埋め式の骨組みを配布。埋めるのは今日の主役「状態」" + L + L +
+"## ワーク③ 自分用に作り変える" + L +
+"・ヒント1：最近2回以上書いた文章＝種（お礼・日報・議事録送付・予約確認…）" + L +
+"・ヒント2：企画の型 WHY→WHAT→HOW" + L +
+"・ヒント3：題材の項目名と文面の差し替えだけで立派な第1号" + L + L +
+"### AIへの依頼文テンプレ（コピペ用）" + L +
+"「単一HTMLファイルのツールを作って。条件：外部ライブラリ禁止／入力フォーム→ボタン→定型文生成＆コピー／" +
+"ユーザー入力をHTMLに入れるなら必ずエスケープ／必須チェックとコピー失敗時の代替／出力組立は1関数に集約。" +
+"文面サンプル：（ここに自分の定型文）」"
+  });
+
+  out.push({ key:"answers", icon:"✅", title:"解答集（講師用・指針）", body:
+"# 解答集｜" + d.title + L +
+"※ 題材コードに合わせて行番号・具体名を補完してください" + L + L +
+"## ワーク① 模範" + L +
+"・M1：既存の1行を複製し値を変更。保存→再読込で反映確認" + L +
+"・M2：スタイル変数を1か所変更→複数箇所へ波及することを本人が説明できれば理解OK" + L +
+"・M3：出力関数内の文面を書き換え（囲み記号/行末記号の保持を確認）" + L + L +
+"## ワーク② 模範（保存・復元）" + L +
+"・①ユーティリティに保存/読込の2関数（try/catchで保存不可環境でも本体無傷）" + L +
+"・②更新処理の最後に保存呼び出し（更新=保存の合図で保存漏れゼロ）" + L +
+"・③初期化の最初に読込＋再描画" + L +
+"・テスト：成功時は無言が仕様→『無言=合格』を必ずアナウンス" + L + L +
+"## ワーク③ 評価観点" + L +
+"WHY言語化／入力→ボタン→出力の一周（完成度不問）／安全策／出力の1関数集約／AI出力の自己チェック" + L + L +
+"## 宿題の解答指針" + L +
+"中級：保存状態が分かる表示の追加／上級：連携結果を成功◯件・失敗◯件で返す仕様拡張＋失敗分の扱い"
+  });
+
+  out.push({ key:"homework", icon:"📮", title:"宿題シート（受講生配布）", body:
+"# 宿題シート｜" + d.title + L +
+"任意・1つでも・途中でもOK。1週間後の自分が再現できるかが狙い🥕" + L + L +
+"## 🌱 初級：卒業制作をもう1歩" + L +
+"ワーク③の企画を完成させ、機能を1つ足す。誰か1人に見せて感想をもらう" + L + L +
+"## 🌿 中級：守りの仕上げ" + L +
+"安全策の動作テストを自分のツールでも実行／保存状態が分かる表示を1つ追加" + L + L +
+"## 🌳 上級：連携の進化" + L +
+"外部連携の結果表示を「成功◯件・失敗◯件」に対応。設計メモだけでも提出物" + L + L +
+"## 提出方法（任意）" + L +
+"提出先：" + d.submit + L +
+"3点セット：①スクショ1枚 ②一言 ③今日の型をどこで使ったか1つ" + L +
+"締切：なし（1週間以内推奨）"
+  });
+
+  out.push({ key:"support", icon:"🆘", title:"全力サポート資料（苦手な方向け）", body:
+"# 全力サポート資料｜" + d.title + L +
+"今日を完走するための専用装備。コピペで進めてOK。動いた体験が一番の収穫🥕" + L + L +
+"## 心構え（3つだけ）" + L +
+"1. エラーは敵じゃない（一番成長するのは一番エラーを見た人）" + L +
+"2. Ctrl+Z（戻る）と作業前コピーがあれば無敵" + L +
+"3. わからない=付箋を立てる。『初歩すぎる質問』はありません" + L + L +
+"## ゼロからの操作" + L +
+"・保険コピー：題材ファイルを右クリック→コピー→貼り付け" + L +
+"・編集と保存：エディタで開く→Ctrl+S（タブの●が消えれば保存済み）" + L +
+"・確認：ブラウザで開く→編集後はF5（『保存→F5』が今日のリズム）" + L +
+"・検索：Ctrl+F／F12：Consoleの赤文字は『ファイル名:数字』をメモして講師へ" + L + L +
+"## コピペルート" + L +
+"各ミッションは『既存の1行を複製→差し替え→保存→F5』で完走可能" + L +
+"ワーク②の保存機能は『3か所に貼るだけ』の穴埋めコードを配布（講師に申告）" + L +
+"ワーク③は『文面と項目名の差し替え』だけで世界に1つのツール完成" + L + L +
+"## よくあるエラー救急箱" + L +
+"真っ白→記号を消した→Ctrl+Z／変わらない→保存忘れ・別ファイル→Ctrl+S+F5" + L +
+"文字化け→全角記号→半角で貼り直し／赤文字→行番号付近を保険コピーと見比べ"
+  });
+
+  out.push({ key:"checklist", icon:"📋", title:"講師チェックリスト", body:
+"# 講師チェックリスト｜" + d.title + L + L +
+"## 前日まで" + L +
+"[ ] 題材の動作確認（主要機能ひと通り）" + L +
+"[ ] ライブデモ用の検証ファイルを別名で用意（本番は壊さない）" + L +
+"[ ] ワーク②模範解答版を別ファイルで用意・確認" + L +
+"[ ] 配布物を1リンクに集約（題材／ヒント集／サポート資料／宿題シート）" + L +
+"[ ] 講座資料・台本・運営ガイド・解答集・本リストのオフラインコピー" + L +
+"[ ] 表彰状：賞名×人数＋完走賞は全員分＋予備" + L +
+"[ ] " + d.org + "の勉強会スレッド作成（配布リンク＋提出先：" + d.submit + "）" + L +
+"[ ] タイマー・付箋（黄/赤）・マグネット・マーカー" + L + L +
+"## 当日朝（60分前）" + L +
+"[ ] 投影文字サイズ（最後列基準・エディタ拡大）／通知OFF・不要タブ閉じ" + L +
+"[ ] 配布リンク固定／進捗表とタイムテーブル板書" + L + L +
+"## ワーク中" + L +
+"[ ] 🟥赤付箋最優先／開始10分で全員の画面1周／表彰候補メモ／『1行だけ代打』原則" + L + L +
+"## 発表会前" + L +
+"[ ] 発表順板書（トップバッター内諾）／タイマー／表彰3賞確定／表彰状に記入" + L + L +
+"## 終了後" + L +
+"[ ] 原状回復／スレッドにお礼＋資料＋宿題リマインド／ふりかえりメモ／解答集公開"
+  });
+
+  out.push({ key:"certificate", icon:"🏆", title:"表彰状・修了証（文面ひな形）", body:
+"修 了 証 兼 表 彰 状" + L +
+"CERTIFICATE OF COMPLETION" + L + L +
+"［ お名前 ］　殿" + L + L +
+"あなたは " + d.org + " 主催の勉強会" + L +
+"「" + d.title + "」（" + d.dateJp + " " + d.span + "）を修了し" + L +
+d.g1 + "・" + d.g2 + "・" + d.g3 + " の力を立派に修めたことをここに証し" + L +
+"その挑戦と健闘を讃えます" + L + L +
+"受賞：［ 　　　　 ］賞" + L + L +
+"　　　" + d.dateJp + L +
+"　　　うさうさ研修工房　講師　" + d.teacher + " 🐰" + L + L +
+"「" + d.motto + "」" + L + L +
+"───────────────" + L +
+"（賞の例：ベストツール賞／ベストチャレンジ賞／ベスト質問賞／完走賞）" + L +
+"※ 保存形式PDFで保存すると、金枠の賞状レイアウトで印刷されます（受賞者名・賞名は入力フォームの🏆欄から差し込み）"
+  });
+
+  out.forEach(function(doc){ doc.original = doc.body; });
+  return out;
+}
+
+// ---------- 生成 ----------
+function generate(){
+  if(!validate()){ flash("ng","赤枠の必須項目（*）を入力してください"); return; }
+  if(docs.some(function(doc){ return doc.body !== doc.original; })){
+    if(!confirm("編集済みのひな形があります。再生成すると編集内容は失われます。よろしいですか？")) return;
+  }
+  if(genBusy){ return; }
+  var d = collect();
+  var reduce = !window.matchMedia || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce){
+    // 動きを減らす設定・matchMedia非対応環境では演出なしで即時生成
+    docs = buildDocs(d); sel = docs.map(function(){ return false; }); activeTab = 0; render();
+    flash("ok","✨ 9点セットを生成しました!表示エリアで直接書き込み編集→形式を選んで保存できます");
+    return;
+  }
+  genBusy = true;
+  document.getElementById("btn-gen").disabled = true;
+  document.getElementById("btn-sample").disabled = true;
+  document.getElementById("tabs").innerHTML = "";
+  document.getElementById("docs").innerHTML = kakiScene("かきかき",
+    "うさうさ先生が机に向かって、9点セットを手書きで用意しています", "📝 講座資料 → 台本 → ヒント → … → 表彰状");
+  setTimeout(function(){
+    docs = buildDocs(d); sel = docs.map(function(){ return false; }); activeTab = 0; render();
+    flash("ok","✨ かきかき完了!9点セットができました。書き込み編集→形式を選んで保存できます");
+    genBusy = false;
+    document.getElementById("btn-gen").disabled = false;
+    document.getElementById("btn-sample").disabled = false;
+  }, 1500);
+}
+
+// ---------- render (escaped / 編集対応) ----------
+function isEdited(doc){ return doc.body !== doc.original; }
+function render(){
+  var tabs = document.getElementById("tabs");
+  var area = document.getElementById("docs");
+  if(!docs.length){
+    tabs.innerHTML = "";
+    area.innerHTML = kakiScene("おまちしてます",
+      "左のフォームに入力して「生成する」を押すと、<br>うさうさ先生が机でかきかき準備を始めます🥕", "");
+    document.getElementById("counter").textContent = "未生成";
+    document.getElementById("selectbar").style.display = "none";
+    srOpen = false;
+    document.getElementById("srbar").style.display = "none";
+    closeInspection();
+    closePreview();
+    return;
+  }
+  renderSelectBar();
+  tabs.innerHTML = docs.map(function(doc,i){
+    return '<button class="tab' + (i===activeTab?" active":"") + '" onclick="switchTab(' + i + ')">' +
+      doc.icon + " " + escapeHtml(doc.title.replace(/（.*$/,"").substring(0,12)) +
+      (isEdited(doc) ? '<span class="dot" title="編集済み"></span>' : "") + "</button>";
+  }).join("");
+
+  var doc = docs[activeTab];
+  area.innerHTML =
+    '<div class="doc">' +
+      '<div class="doc-head">' +
+        '<span style="font-size:1.1rem;">' + doc.icon + '</span>' +
+        '<span class="ttl">' + escapeHtml(doc.title) + '</span>' +
+        (isEdited(doc) ? '<span class="pill-edited">✏️ 編集済み</span>' : '<span class="pill-hint">✏️ 本文はクリックでそのまま書き込めます</span>') +
+        '<span class="ext">' + escapeHtml(doc.key) + '</span>' +
+      '</div>' +
+      '<textarea class="doc-edit" id="doc-edit" oninput="onEdit(this.value)" aria-label="ひな形の編集エリア"></textarea>' +
+      '<div class="doc-acts">' +
+        '<button class="btn btn-ghost btn-sm" onclick="copyOne(' + activeTab + ')">📋 この資料をコピー</button>' +
+        '<button class="btn btn-gold btn-sm" onclick="downloadOne(' + activeTab + ')">💾 この1枚を保存（選択形式）</button>' +
+        '<button class="btn btn-ghost btn-sm" onclick="resetOne(' + activeTab + ')">↩️ ひな形に戻す</button>' +
+      '</div>' +
+    '</div>';
+  document.getElementById("doc-edit").value = doc.body;   // valueで設定=エスケープ不要の安全経路
+  updateCounter();
+}
+function updateCounter(){
+  var ed = docs.filter(isEdited).length;
+  document.getElementById("counter").textContent =
+    docs.length + "点 生成済み（" + (activeTab+1) + "/" + docs.length + "表示・編集済み " + ed + "点）";
+}
+function onEdit(v){
+  docs[activeTab].body = v;
+  // タブの●とピルだけ更新（全再描画するとカーソルが飛ぶため部分更新）
+  var tabBtns = document.querySelectorAll("#tabs .tab");
+  var btn = tabBtns[activeTab];
+  if(btn){
+    var hasDot = btn.querySelector(".dot");
+    if(isEdited(docs[activeTab]) && !hasDot){
+      var sp = document.createElement("span"); sp.className="dot"; sp.title="編集済み"; btn.appendChild(sp);
+    } else if(!isEdited(docs[activeTab]) && hasDot){ btn.removeChild(hasDot); }
+  }
+  var pill = document.querySelector(".pill-edited");
+  var hint = document.querySelector(".pill-hint");
+  var head = document.querySelector(".doc-head");
+  if(isEdited(docs[activeTab])){
+    if(hint && hint.parentNode) hint.parentNode.removeChild(hint);
+    if(!pill && head){
+      var p = document.createElement("span"); p.className="pill-edited"; p.textContent="✏️ 編集済み";
+      head.insertBefore(p, head.querySelector(".ext"));
+    }
+  } else {
+    if(pill && pill.parentNode) pill.parentNode.removeChild(pill);
+    if(!hint && head){
+      var h = document.createElement("span"); h.className="pill-hint"; h.textContent="✏️ 本文はクリックでそのまま書き込めます";
+      head.insertBefore(h, head.querySelector(".ext"));
+    }
+  }
+  updateCounter();
+}
+function renderSelectBar(){
+  var bar = document.getElementById("selectbar");
+  bar.style.display = "block";
+  var chips = document.getElementById("sel-chips");
+  chips.innerHTML = docs.map(function(doc,i){
+    var on = sel[i] ? " on" : "";
+    var chk = sel[i] ? " checked" : "";
+    return '<label class="sel-chip' + on + '"><input type="checkbox"' + chk +
+      ' onchange="toggleSel(' + i + ')">' + doc.icon + " " +
+      escapeHtml(doc.title.replace(/（.*$/,"").substring(0,10)) + '</label>';
+  }).join("");
+  renderPatterns();
+  updateSelCount();
+  refreshPreview();
+}
+function renderPatterns(){
+  document.getElementById("pat-chips").innerHTML = patterns.map(function(p,i){
+    return '<span class="pat-chip' + (p.builtin ? " builtin" : "") + '" onclick="applyPattern(' + i + ')" title="クリックで適用">' +
+      (p.builtin ? "📌 " : "⭐ ") + escapeHtml(p.name) + "（" + p.keys.length + "）" +
+      (p.builtin ? "" : '<button type="button" class="pat-del" title="削除" onclick="deletePattern(event,' + i + ')">✕</button>') +
+      '</span>';
+  }).join("");
+}
+function applyPattern(i){
+  var p = patterns[i];
+  sel = docs.map(function(doc){ return p.keys.indexOf(doc.key) >= 0; });
+  renderSelectBar();
+  flash("ok","⭐ パターン「" + p.name + "」を適用しました（" + sel.filter(Boolean).length + "点選択）");
+}
+function savePattern(){
+  var keys = docs.filter(function(_,i){ return sel[i]; }).map(function(doc){ return doc.key; });
+  if(!keys.length){ flash("ng","記憶したい資料に先にチェックを入れてください"); return; }
+  if(patterns.length >= 10){ flash("ng","記憶できるパターンは10個までです（不要なものを✕で削除してください）"); return; }
+  var name = document.getElementById("pat-name").value.trim() || ("マイパターン" + (patterns.filter(function(p){return !p.builtin;}).length + 1));
+  var dup = -1;
+  patterns.forEach(function(p,i){ if(!p.builtin && p.name === name) dup = i; });
+  if(dup >= 0){
+    if(!confirm("同名パターン「" + name + "」を上書きします。よろしいですか？")) return;
+    patterns[dup].keys = keys;
+  } else {
+    patterns.push({ name:name, keys:keys, builtin:false });
+  }
+  document.getElementById("pat-name").value = "";
+  renderPatterns();
+  flash("ok","⭐ パターン「" + name + "」を記憶しました（このページを開いている間のみ有効）");
+}
+function deletePattern(ev, i){
+  ev.stopPropagation();   // チップの適用クリックを抑止
+  if(!confirm("パターン「" + patterns[i].name + "」を削除します。よろしいですか？")) return;
+  patterns.splice(i,1);
+  renderPatterns();
+  flash("ok","削除しました");
+}
+function toggleSel(i){ sel[i] = !sel[i]; renderSelectBar(); }
+function selAll(on){
+  sel = docs.map(function(){ return !!on; });
+  renderSelectBar();
+}
+function updateSelCount(){
+  var n = sel.filter(Boolean).length;
+  document.getElementById("sel-count").textContent = "選択 " + n + "点";
+}
+function selectedDocs(){
+  return docs.filter(function(_,i){ return sel[i]; });
+}
+function previewBody(list){
+  var f = curFormat();
+  if(f === "csv") return toCsvMulti(list).replace(/^\uFEFF/, "");   // 表示用にBOMは外す（保存時は付与）
+  return joinList(list);   // md / txt / pdf は結合テキストを表示
+}
+function openPreview(){
+  var list = selectedDocs();
+  if(!list.length){ flash("ng","プレビューしたい資料にチェックを入れてください"); return; }
+  previewOpen = true;
+  refreshPreview();
+  flash("ok","👀 選択 " + list.length + " 点を結合プレビュー中。チェックを変えると自動で更新されます");
+}
+function closePreview(){
+  previewOpen = false;
+  document.getElementById("preview").style.display = "none";
+}
+function refreshPreview(){
+  var pv = document.getElementById("preview");
+  if(!previewOpen){ pv.style.display = "none"; return; }
+  var list = selectedDocs();
+  if(!list.length){ closePreview(); return; }
+  var f = curFormat();
+  var fname = (f === "pdf") ? "PDF（保存時は印刷ビュー）" : f;
+  document.getElementById("pv-title").textContent =
+    "👀 結合プレビュー：選択 " + list.length + " 点 ／ 形式 " + fname;
+  document.getElementById("pv-text").value = previewBody(list);   // valueで設定=安全経路
+  pv.style.display = "block";
+}
+function copyPreview(){
+  var list = selectedDocs();
+  if(!list.length){ flash("ng","コピーする内容がありません"); return; }
+  doCopy(previewBody(list), "📋 プレビュー内容（選択" + list.length + "点）をコピーしました!");
+}
+function downloadSelected(){
+  var list = selectedDocs();
+  if(!list.length){ flash("ng","保存したい資料にチェックを入れてください"); return; }
+  var f = curFormat();
+  var stamp = asciiStamp();
+  if(f === "pdf"){ printPdf(list, "🖨 選択した" + list.length + "点の印刷ビューを開きます（1点1ページ）"); return; }
+  var ext = (f === "csv") ? ".csv" : (f === "txt") ? ".txt" : ".md";
+  var mime = (f === "csv") ? "text/csv" : (f === "txt") ? "text/plain" : "text/markdown";
+  var body = (f === "csv") ? toCsvMulti(list) : joinList(list);
+  var fn = "studygroup_kit_selected_" + list.length + "of" + docs.length + "_" + stamp + ext;
+  if(saveBlob(fn, body, mime)) flash("ok","💾 " + fn + " に選択" + list.length + "点を保存しました" + inspSuffix());
+  else flash("ng","保存に失敗しました。コピー機能をご利用ください");
+}
+function downloadSelectedEach(){
+  var list = selectedDocs();
+  if(!list.length){ flash("ng","保存したい資料にチェックを入れてください"); return; }
+  var f = curFormat();
+  if(f === "pdf"){
+    printPdf(list, "🖨 PDFは個別保存に対応していないため、選択" + list.length + "点をまとめた印刷ビューを開きます");
+    return;
+  }
+  var stamp = asciiStamp();
+  var ext = (f === "csv") ? ".csv" : (f === "txt") ? ".txt" : ".md";
+  var mime = (f === "csv") ? "text/csv" : (f === "txt") ? "text/plain" : "text/markdown";
+  var done = 0;
+  list.forEach(function(doc, idx){
+    setTimeout(function(){   // 連続DLのブロック回避に少し間隔を空ける
+      var body = (f === "csv") ? toCsvOne(doc) : doc.body;
+      if(saveBlob("studygroup_" + doc.key + "_" + stamp + ext, body, mime)) done++;
+      if(idx === list.length - 1){
+        flash("ok","💾 選択" + list.length + "点を個別ファイルで保存しました（" + done + "/" + list.length + "成功）");
+      }
+    }, idx * 250);
+  });
+}
+function switchTab(i){ activeTab = i; render(); }
+function resetOne(i){
+  if(isEdited(docs[i]) && !confirm("「" + docs[i].title + "」の編集内容を破棄してひな形に戻します。よろしいですか？")) return;
+  docs[i].body = docs[i].original;
+  render();
+  flash("ok","↩️ ひな形に戻しました");
+}
+
+// ---------- copy ----------
+function doCopy(text, okMsg){
+  if(!text){ flash("ng","コピーする内容がありません"); return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ flash("ok",okMsg); })
+      .catch(function(){ fallbackCopy(text, okMsg); });
+  } else { fallbackCopy(text, okMsg); }
+}
+function fallbackCopy(text, okMsg){
+  var ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); flash("ok", okMsg); }
+  catch(_){ flash("ng","コピーに失敗しました。編集エリアから手動でコピーしてください"); }
+  document.body.removeChild(ta);
+}
+function copyOne(i){ doCopy(docs[i].body, "📋 「" + docs[i].title + "」をコピーしました!"); }
+function joinList(list){
+  return list.map(function(doc){
+    return "=".repeat(60) + "\n" + doc.icon + " " + doc.title + " （" + doc.key + "）\n" + "=".repeat(60) + "\n\n" + doc.body;
+  }).join("\n\n\n");
+}
+function joinAll(){ return joinList(docs); }
+function copyAll(){
+  if(!docs.length){ flash("ng","先に生成してください"); return; }
+  doCopy(joinAll(), "📋 9点セット全文（編集内容込み）をコピーしました!");
+}
+
+// ---------- save (md/txt/csv/pdf) ----------
+function curFormat(){ return document.getElementById("f-format").value; }
+function saveBlob(filename, text, mime){
+  try{
+    var blob = new Blob([text], {type:(mime || "text/plain") + ";charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    return true;
+  }catch(_){ return false; }
+}
+function certPrintHtml(){
+  var d = collect();   // 最新の入力から賞状フィールドを構成
+  var awardee = val("f-awardee");
+  var award = val("f-award");
+  var nameHtml = awardee ? escapeHtml(awardee) : "&nbsp;";  // 空欄=下線だけ印刷
+  var awardHtml = award ? escapeHtml(award) : "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+  return '<div class="p-cert">' +
+    '<span class="c-corner c-tl">🥕</span><span class="c-corner c-tr">🥕</span>' +
+    '<span class="c-corner c-bl">🐰</span><span class="c-corner c-br">🥕</span>' +
+    '<h1>修了証 兼 表彰状</h1>' +
+    '<div class="c-en">CERTIFICATE OF COMPLETION</div>' +
+    '<div><span class="c-name">' + nameHtml + '</span></div>' +
+    '<div class="c-dono">殿</div>' +
+    '<div class="c-body">あなたは ' + escapeHtml(d.org) + ' 主催の勉強会<br>' +
+      '「' + escapeHtml(d.title || "（勉強会名）") + '」（' + escapeHtml(d.dateJp) + ' ' + escapeHtml(d.span) + '）を修了し<br>' +
+      escapeHtml(d.g1) + '・' + escapeHtml(d.g2) + '・' + escapeHtml(d.g3) + ' の力を立派に修めたことをここに証し<br>' +
+      'その挑戦と健闘を讃えます</div>' +
+    '<div class="c-award">受賞　<b>' + awardHtml + '</b>　賞</div>' +
+    '<div class="c-date">' + escapeHtml(d.dateJp) + '</div>' +
+    '<div class="c-issuer">うさうさ研修工房　講師　' + escapeHtml(d.teacher) + ' 🐰</div>' +
+    '<div class="c-motto">「' + escapeHtml(d.motto) + '」</div>' +
+  '</div>';
+}
+function buildPrintArea(list){
+  var pa = document.getElementById("print-area");
+  pa.innerHTML = list.map(function(doc){
+    if(doc.key === "certificate") return certPrintHtml();   // 賞状だけ専用レイアウト
+    return '<div class="p-doc"><h1>' + doc.icon + " " + escapeHtml(doc.title) + '</h1>' +
+      '<pre>' + escapeHtml(doc.body) + '</pre>' +
+      '<div class="p-foot">🐰🍂 うさうさ研修工房｜勉強会ひな形ジェネレーターPRO v4.0.0</div></div>';
+  }).join("");
+}
+function printPdf(list, okMsg){
+  buildPrintArea(list);
+  flash("ok", okMsg + "（印刷ダイアログで「送信先：PDFに保存」を選んでください）");
+  setTimeout(function(){ window.print(); }, 150);   // flash表示後に印刷ダイアログ
+}
+function downloadOne(i){
+  var doc = docs[i];
+  var f = curFormat();
+  var stamp = asciiStamp();
+  if(f === "pdf"){ printPdf([doc], "🖨 「" + doc.title + "」の印刷ビューを開きます"); return; }
+  var fn, body, mime;
+  if(f === "csv"){ fn = "studygroup_" + doc.key + "_" + stamp + ".csv"; body = toCsvOne(doc); mime = "text/csv"; }
+  else if(f === "txt"){ fn = "studygroup_" + doc.key + "_" + stamp + ".txt"; body = doc.body; mime = "text/plain"; }
+  else { fn = "studygroup_" + doc.key + "_" + stamp + ".md"; body = doc.body; mime = "text/markdown"; }
+  if(saveBlob(fn, body, mime)) flash("ok","💾 " + fn + " を保存しました" + inspSuffix());
+  else flash("ng","保存に失敗しました。コピー機能をご利用ください");
+}
+function downloadAll(){
+  if(!docs.length){ flash("ng","先に生成してください"); return; }
+  var f = curFormat();
+  var stamp = asciiStamp();
+  if(f === "pdf"){ printPdf(docs, "🖨 9点まとめて印刷ビューを開きます（1点1ページ）"); return; }
+  var fn, body, mime;
+  if(f === "csv"){ fn = "studygroup_kit_all_" + stamp + ".csv"; body = toCsvAll(); mime = "text/csv"; }
+  else if(f === "txt"){ fn = "studygroup_kit_all_" + stamp + ".txt"; body = joinAll(); mime = "text/plain"; }
+  else { fn = "studygroup_kit_all_" + stamp + ".md"; body = joinAll(); mime = "text/markdown"; }
+  if(saveBlob(fn, body, mime)) flash("ok","💾 " + fn + " に9点まとめて保存しました（編集内容込み）" + inspSuffix());
+  else flash("ng","保存に失敗しました。全文コピーをご利用ください");
+}
+
+// ---------- clear / status ----------
+function clearAll(){
+  if(docs.length && !confirm("生成結果（編集内容を含む）をクリアします。よろしいですか？\n（先に🗂一時保存しておくと、いつでも復元できます）")) return;
+  docs = []; sel = []; activeTab = 0; render(); flash("ok","クリアしました");
+}
+var flashTimer = null;
+function flash(kind,msg){
+  var s = document.getElementById("status");
+  s.className = kind; s.textContent = msg; s.style.display = "block";
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(function(){ s.className=""; s.style.display="none"; }, 4500);
+}
+</script>
+</body>
+</html>
